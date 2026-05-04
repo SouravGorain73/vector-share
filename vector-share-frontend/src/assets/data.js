@@ -1,26 +1,47 @@
 //Static data
-export const plans = [
+export const pricingPlans = [
   {
-    id: "p1",
     name: "Free",
-    price: 0,
-    storage: 15, // GB
-    features: ["Basic Upload", "Limited Sharing"],
+    description: "Perfect for getting started",
+    price: "₹0",
+    highlighted: false,
+    features: [
+      "5 file uploads",
+      "Basic file sharing",
+      "7-day file retention",
+      "Email support"
+    ],
+    cta: "Get Started"
   },
   {
-    id: "p2",
-    name: "Pro",
-    price: 199,
-    storage: 100,
-    features: ["Unlimited Upload", "Advanced Sharing", "Semantic Search"],
+    name: "Premium",
+    description: "For individuals with larger needs",
+    price: "₹500",
+    highlighted: true,
+    features: [
+      "500 file uploads",
+      "Advanced file sharing",
+      "30-day file retention",
+      "Priority email support",
+      "File analytics"
+    ],
+    cta: "Go Premium"
   },
   {
-    id: "p3",
-    name: "Enterprise",
-    price: 499,
-    storage: 1000,
-    features: ["Team Access", "Priority Support", "AI Search"],
-  },
+    name: "Ultimate",
+    description: "For teams and businesses",
+    price: "₹2500",
+    highlighted: false,
+    features: [
+      "5000 file uploads",
+      "Team sharing capabilities",
+      "Unlimited file retention",
+      "24/7 priority support",
+      "Advanced analytics",
+      "API access"
+    ],
+    cta: "Go Ultimate"
+  }
 ];
 
 export const subscriptions = [
