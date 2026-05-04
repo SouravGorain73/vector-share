@@ -115,3 +115,42 @@ export const teams = [
     members: ["u1", "u2"],
   },
 ];
+
+export const features = [
+  {
+    title: "Easy File Upload",
+    description: "Quickly upload your files with our intuitive drag-and-drop interface.",
+    icon: "ArrowUpCircle",
+    color: "text-blue-500"
+  },
+  {
+    title: "Secure Storage",
+    description: "Your files are encrypted and stored securely in our cloud infrastructure.",
+    icon: "Shield",
+    color: "text-green-500"
+  },
+  {
+    title: "Simple Sharing",
+    description: "Share files with anyone using secure links that you control.",
+    icon: "Share2",
+    color: "text-purple-500"
+  },
+  {
+    title: "Flexible Credits",
+    description: "Pay only for what you use with our credit-based system.",
+    icon: "CreditCard",
+    color: "text-yellow-500"
+  },
+  {
+    title: "File Management",
+    description: "Organize, preview, and manage your files from any device.",
+    icon: "FileText",
+    color: "text-indigo-500"
+  },
+  {
+    title: "Transaction History",
+    description: "Keep track of all your credit purchases and usage.",
+    icon: "Clock",
+    color: "text-red-500"
+  }
+];

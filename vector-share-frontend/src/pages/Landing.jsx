@@ -5,6 +5,7 @@ import PricingSection from '../components/landing/PricingSection'
 import TestimonialSection from '../components/landing/TestimonialSection'
 import CTASection from '../components/landing/CTASection'
 import FooterSection from '../components/landing/FooterSection'
+import { features } from '../assets/data'
 
 function Landing() {
   return (
@@ -13,7 +14,7 @@ function Landing() {
         <HeroSection/>
 
         {/* Features Section */}
-        <FeaturesSection/>
+        <FeaturesSection features={features}/>
 
         {/* Pricing Section */}
         <PricingSection/>
