@@ -5,7 +5,7 @@ import PricingSection from '../components/landing/PricingSection'
 import TestimonialSection from '../components/landing/TestimonialSection'
 import CTASection from '../components/landing/CTASection'
 import FooterSection from '../components/landing/FooterSection'
-import { features, pricingPlans } from '../assets/data'
+import { features, pricingPlans, testimonials } from '../assets/data'
 
 function Landing() {
   return (
@@ -20,7 +20,7 @@ function Landing() {
         <PricingSection pricingPlans={pricingPlans}/>
 
         {/* Testimonials Section */}
-        <TestimonialSection/>
+        <TestimonialSection testimonials={testimonials}/>
 
         {/* CTA(Call to Action) Section */}
         <CTASection/>
