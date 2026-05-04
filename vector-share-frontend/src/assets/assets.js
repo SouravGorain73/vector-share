@@ -1,5 +1,7 @@
 import dashboard from './Dashboard.jpg'
 
-export const assets = {
+const assets = {
     dashboard,
 }
+
+export default assets;
