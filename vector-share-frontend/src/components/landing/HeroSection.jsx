@@ -1,7 +1,7 @@
 import React from 'react'
 import assets from '../../assets/assets.js'
 
-function HeroSection() {
+function HeroSection({openSignUp, openSignIn}) {
   return (
     <div className='landing-page-content relative'>
         <div className='absolute inset-0 bg-linear-to-r from-purple-50 to-indigo-50 opacity-80 z-0 pointer-events-none'></div>
@@ -17,19 +17,23 @@ function HeroSection() {
                     </p>
                     <div className="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center">
                         <div className="space-y-4 sm:space-y-0 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5">
-                            <button className='flex items-center px-6 py-3 border-transparent border text-base font-medium rounded-md text-white bg-purple-500 hover:bg-purple-600 md:py-4 md:text-lg md:px-10 transition-all duration-200 shadow-lg hover:shadow-xl'>Get Started</button>
-                            <button className='flex items-center justify-center px-6 py-3 border-transparent border text-base font-medium rounded-md text-black bg-white-500 hover:bg-gray-600 md:py-4 md:text-lg md:px-10 transition-all duration-200 shadow-lg hover:shadow-xl'>Sign In</button>
+                            <button
+                                onClick={() => openSignUp()}
+                                className='flex items-center px-6 py-3 border-transparent border text-base font-medium rounded-md text-white bg-purple-500 hover:bg-purple-600 md:py-4 md:text-lg md:px-10 transition-all duration-200 shadow-lg hover:shadow-xl'>Get Started</button>
+                            <button 
+                                onClick={() => openSignIn()}
+                                className='flex items-center justify-center px-6 py-3 border-transparent border text-base font-medium rounded-md text-black bg-white md:py-4 md:text-lg md:px-10 transition-all duration-200 shadow-lg hover:shadow-xl'>Sign In</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="realtive">
+            <div className="relative">
                 <div className="aspect-w-16 rounded-lg shadow-xl overflow-hidden">
                     <img src={assets.dashboard} alt="vectorshare dashboard" className='w-full h-full object-cover'/>
                 </div>
                 <div className="absolute inset-0 bg-linear-to-t from-black opacity-10 rounded-lg">
-
+                    
                 </div>
             </div>
 

@@ -40,7 +40,6 @@ function FeaturesSection({features}) {
             {
               features.map((feature, index) => (
                 <div key={index} className='pt-5 border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 bg-white'>
-                  {console.log(feature)}
                   <div className="flow-root bg-gray-50 rounded-lg px-6 pb-8">
                     <div className="-mt-6">
                       <div className='inline-flex items-center justify-center p-3 bg-white rounded-md shadow-lg'>
