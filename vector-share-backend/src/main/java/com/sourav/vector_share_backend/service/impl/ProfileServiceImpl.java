@@ -37,4 +37,32 @@ public class ProfileServiceImpl implements ProfileService{
 		return modelMapper.map(newProfile, ProfileDto.class);
 	}
 
+	@Override
+	public ProfileDto updateProfile(String email, ProfileDto profileDto) {
+		
+		ProfileDocument oldProfile = profileRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User does not exists!"));
+		
+		if(profileDto.getClerkId() != null) {
+			oldProfile.setClerkId(profileDto.getClerkId());
+		}
+		if(profileDto.getFirstName() != null) {
+			oldProfile.setFirstName(profileDto.getFirstName());
+		}
+		if(profileDto.getLastName() != null) {
+			oldProfile.setLastName(profileDto.getLastName());
+		}
+		if(profileDto.getEmail() != null) {
+			oldProfile.setEmail(profileDto.getEmail());
+		}
+		if(profileDto.getPhotoUrl() != null) {
+			oldProfile.setPhotoUrl(profileDto.getPhotoUrl());
+		}
+		
+		
+		ProfileDocument updatedProfile = profileRepository.save(oldProfile);
+		
+		return modelMapper.map(updatedProfile, ProfileDto.class);
+		
+	}
+
 }
