@@ -9,6 +9,6 @@ public interface ProfileService {
 	
 	ProfileDto createProfile(ProfileDto profileDto);
 	
-	ProfileDto updateProfile(String email, ProfileDto profileDto);
+	ProfileDto updateProfile(ProfileDto profileDto);
 
 }

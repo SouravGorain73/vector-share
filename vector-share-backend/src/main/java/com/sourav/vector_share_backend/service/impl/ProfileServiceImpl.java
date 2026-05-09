@@ -22,6 +22,10 @@ public class ProfileServiceImpl implements ProfileService{
 	@Override
 	public ProfileDto createProfile(ProfileDto profileDto) {
 		
+		if(profileRepository.existsByClerkId(profileDto.getClerkId())) {
+			return updateProfile(profileDto);
+		}
+		
 		ProfileDocument newProfile = ProfileDocument.builder()
 				.clerkId(profileDto.getClerkId())
 				.email(profileDto.getEmail())
@@ -38,23 +42,23 @@ public class ProfileServiceImpl implements ProfileService{
 	}
 
 	@Override
-	public ProfileDto updateProfile(String email, ProfileDto profileDto) {
+	public ProfileDto updateProfile(ProfileDto profileDto) {
 		
-		ProfileDocument oldProfile = profileRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User does not exists!"));
+		ProfileDocument oldProfile = profileRepository.findByClerkId(profileDto.getClerkId()).orElseThrow(() -> new RuntimeException("User does not exists!"));
 		
-		if(profileDto.getClerkId() != null) {
+		if(profileDto.getClerkId() != null && !profileDto.getClerkId().isEmpty()) {
 			oldProfile.setClerkId(profileDto.getClerkId());
 		}
-		if(profileDto.getFirstName() != null) {
+		if(profileDto.getFirstName() != null && !profileDto.getFirstName().isEmpty()) {
 			oldProfile.setFirstName(profileDto.getFirstName());
 		}
-		if(profileDto.getLastName() != null) {
+		if(profileDto.getLastName() != null && !profileDto.getLastName().isEmpty()) {
 			oldProfile.setLastName(profileDto.getLastName());
 		}
-		if(profileDto.getEmail() != null) {
+		if(profileDto.getEmail() != null && !profileDto.getEmail().isEmpty()) {
 			oldProfile.setEmail(profileDto.getEmail());
 		}
-		if(profileDto.getPhotoUrl() != null) {
+		if(profileDto.getPhotoUrl() != null && !profileDto.getPhotoUrl().isEmpty()) {
 			oldProfile.setPhotoUrl(profileDto.getPhotoUrl());
 		}
 		
