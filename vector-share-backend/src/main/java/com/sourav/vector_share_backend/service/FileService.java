@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sourav.vector_share_backend.dto.request.UpdateVisibilityDto;
 import com.sourav.vector_share_backend.dto.response.FileDownloadDto;
 import com.sourav.vector_share_backend.dto.response.FileResponseDto;
 import com.sourav.vector_share_backend.enums.Visibility;
@@ -19,5 +20,7 @@ public interface FileService {
 	public List<FileResponseDto> getAllFilesByUser(Long userId);
 	
 	public void deleteFile(Long fileId);
+	
+	public FileResponseDto updateVisibility(Long fileId, UpdateVisibilityDto visibilityDto);
 
 }

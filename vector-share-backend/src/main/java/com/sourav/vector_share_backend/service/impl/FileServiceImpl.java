@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sourav.vector_share_backend.dto.request.UpdateVisibilityDto;
 import com.sourav.vector_share_backend.dto.response.FileDownloadDto;
 import com.sourav.vector_share_backend.dto.response.FileResponseDto;
 import com.sourav.vector_share_backend.enums.Visibility;
@@ -47,7 +48,7 @@ public class FileServiceImpl implements FileService{
 		//Save the file physically
 		String filePath = storageService.saveFile(file, storedFileName);
 		
-		String shareToken = UUID.randomUUID().toString();
+		String shareToken = generateShareToken();
 		
 		StoredFile storedFile = StoredFile.builder()
 				.originalFileName(file.getOriginalFilename())
@@ -132,5 +133,37 @@ public class FileServiceImpl implements FileService{
 		
 		//Delete the metadata form DB
 		fileRepository.delete(storedFile);
+	}
+
+	@Override
+	public FileResponseDto updateVisibility(Long fileId, UpdateVisibilityDto visibilityDto) {
+		
+		StoredFile file = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		
+		file.setVisibility(visibilityDto.getVisibility());
+		
+		 // Generate token only for PUBLIC files
+	    if(file.getVisibility() == Visibility.PUBLIC && file.getShareToken() == null) {
+
+	        file.setShareToken(
+	                generateShareToken()
+	        );
+	    }
+	    
+		StoredFile updatedFile = fileRepository.save(file);
+
+	    
+		FileResponseDto fileDto = modelMapper.map(updatedFile, FileResponseDto.class);
+		
+		if(file.getVisibility() == Visibility.PUBLIC && updatedFile.getShareToken() != null) {	
+			
+			fileDto.setShareLink(baseUrl + "/share/" + file.getShareToken());
+		}
+		
+		return fileDto;
+	}
+	
+	private String generateShareToken() {
+		return UUID.randomUUID().toString();
 	}
 }
