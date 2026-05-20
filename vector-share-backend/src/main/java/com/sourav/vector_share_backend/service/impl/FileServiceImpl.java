@@ -85,19 +85,16 @@ public class FileServiceImpl implements FileService{
 	    String contentType;
 
 	    try {
-
 	        contentType =
-	                Files.probeContentType(
+	                Files.probeContentType(			//detecting file MIME type(mainly determining the file type)
 	                        Paths.get(
 	                                storedFile
 	                                .getFilePath()
 	                        )
 	                );
-
 	    } catch (IOException e) {
-
 	        contentType =
-	                "application/octet-stream";
+	                "application/octet-stream";		//Download the file if not getting it's file type
 	    }
 		
 		return new FileDownloadDto(resource, storedFile.getOriginalFileName(), contentType);
@@ -106,7 +103,10 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public List<FileResponseDto> getAllFilesByUser(Long userId) {
 		
-		List<StoredFile> files = fileRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		List<StoredFile> files = fileRepository.findByUserId(userId);
+		if(files == null) {
+			throw new RuntimeException("User not found!");
+		}
 		
 		return files.stream()
 				.map(file -> {
@@ -121,5 +121,16 @@ public class FileServiceImpl implements FileService{
 				.toList();
 	}
 	
-
+	public void deleteFile(Long fileId) {
+		
+		StoredFile storedFile = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		
+		//Delete the actual file
+		storageService.deleteFile(
+			storedFile.getFilePath()
+		);
+		
+		//Delete the metadata form DB
+		fileRepository.delete(storedFile);
+	}
 }

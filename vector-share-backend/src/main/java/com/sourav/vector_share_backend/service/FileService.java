@@ -17,5 +17,7 @@ public interface FileService {
 	public FileDownloadDto getSharedFile(String token);
 	
 	public List<FileResponseDto> getAllFilesByUser(Long userId);
+	
+	public void deleteFile(Long fileId);
 
 }

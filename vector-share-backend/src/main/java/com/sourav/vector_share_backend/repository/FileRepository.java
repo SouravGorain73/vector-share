@@ -14,5 +14,5 @@ public interface FileRepository extends JpaRepository<StoredFile, Long>{
 	
 	Optional<StoredFile> findByShareToken(String shareToken);
 	
-	Optional<List<StoredFile>> findByUserId(Long userId);
+	List<StoredFile> findByUserId(Long userId);
 }

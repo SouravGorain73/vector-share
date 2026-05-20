@@ -9,4 +9,6 @@ public interface StorageService {
 	String saveFile(MultipartFile file, String fileName);
 	
 	Resource loadFile(String path);
+	
+	void deleteFile(String path);
 }
