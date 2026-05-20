@@ -48,7 +48,7 @@ public class FileController {
 				+ file.getFileName()
 				+ "\""
 				)
-				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.contentType(MediaType.parseMediaType(file.getContentType()))
 				.body(file.getResource());
 	}
 	

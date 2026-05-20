@@ -12,4 +12,6 @@ public class FileDownloadDto {
 	private Resource resource;
 	
 	private String fileName;
+	
+	private String contentType;
 }

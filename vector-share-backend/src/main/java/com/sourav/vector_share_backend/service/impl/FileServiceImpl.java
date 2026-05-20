@@ -1,5 +1,8 @@
 package com.sourav.vector_share_backend.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,7 +82,25 @@ public class FileServiceImpl implements FileService{
 		
 		Resource resource = storageService.loadFile(storedFile.getFilePath());
 		
-		return new FileDownloadDto(resource, storedFile.getOriginalFileName());
+	    String contentType;
+
+	    try {
+
+	        contentType =
+	                Files.probeContentType(
+	                        Paths.get(
+	                                storedFile
+	                                .getFilePath()
+	                        )
+	                );
+
+	    } catch (IOException e) {
+
+	        contentType =
+	                "application/octet-stream";
+	    }
+		
+		return new FileDownloadDto(resource, storedFile.getOriginalFileName(), contentType);
 	}
 
 	@Override
