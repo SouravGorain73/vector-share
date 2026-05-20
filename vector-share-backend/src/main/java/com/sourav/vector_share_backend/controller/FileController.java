@@ -1,5 +1,7 @@
 package com.sourav.vector_share_backend.controller;
 
+import java.util.List;
+
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,6 +50,13 @@ public class FileController {
 				)
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.body(file.getResource());
+	}
+	
+	@GetMapping("/user/{userId}")
+	public ResponseEntity<List<FileResponseDto>> getAllFilesByUser(@PathVariable Long userId){
+		List<FileResponseDto> files = fileService.getAllFilesByUser(userId);
+		
+		return ResponseEntity.ok(files);
 	}
 
 }

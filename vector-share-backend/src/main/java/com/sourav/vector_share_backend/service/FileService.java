@@ -1,5 +1,7 @@
 package com.sourav.vector_share_backend.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,5 +15,7 @@ public interface FileService {
 	public FileResponseDto uploadNewFile(MultipartFile file, Visibility visibility, Long userId);
 	
 	public FileDownloadDto getSharedFile(String token);
+	
+	public List<FileResponseDto> getAllFilesByUser(Long userId);
 
 }

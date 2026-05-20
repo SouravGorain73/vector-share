@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.sourav.vector_share_backend.model.StoredFile;
+
+import java.util.List;
 import java.util.Optional;
 
 
@@ -11,4 +13,6 @@ import java.util.Optional;
 public interface FileRepository extends JpaRepository<StoredFile, Long>{
 	
 	Optional<StoredFile> findByShareToken(String shareToken);
+	
+	Optional<List<StoredFile>> findByUserId(Long userId);
 }

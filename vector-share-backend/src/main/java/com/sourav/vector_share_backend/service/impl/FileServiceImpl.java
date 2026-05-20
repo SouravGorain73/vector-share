@@ -1,5 +1,6 @@
 package com.sourav.vector_share_backend.service.impl;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -80,5 +81,24 @@ public class FileServiceImpl implements FileService{
 		
 		return new FileDownloadDto(resource, storedFile.getOriginalFileName());
 	}
+
+	@Override
+	public List<FileResponseDto> getAllFilesByUser(Long userId) {
+		
+		List<StoredFile> files = fileRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		
+		return files.stream()
+				.map(file -> {
+					FileResponseDto dto = modelMapper.map(file, FileResponseDto.class);
+					if(file.getShareToken() != null) {
+						dto.setShareLink(
+							baseUrl + "/share/" + file.getShareToken()
+						);
+					}
+					return dto;
+				})
+				.toList();
+	}
+	
 
 }
