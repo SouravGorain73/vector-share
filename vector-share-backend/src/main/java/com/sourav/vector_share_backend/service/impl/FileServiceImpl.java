@@ -3,9 +3,12 @@ package com.sourav.vector_share_backend.service.impl;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sourav.vector_share_backend.dto.response.FileDownloadDto;
 import com.sourav.vector_share_backend.dto.response.FileResponseDto;
 import com.sourav.vector_share_backend.enums.Visibility;
 import com.sourav.vector_share_backend.model.StoredFile;
@@ -25,6 +28,9 @@ public class FileServiceImpl implements FileService{
 	private final FileRepository fileRepository;
 	private final UserRepository userRepository;
 	private final ModelMapper modelMapper;
+	
+	@Value("${app.base-url}")
+	private String baseUrl;
 
 	@Override
 	public FileResponseDto uploadNewFile(MultipartFile file, Visibility visibility, Long userId) {
@@ -52,8 +58,27 @@ public class FileServiceImpl implements FileService{
 		//Save metadata in db
 		StoredFile savedFile = fileRepository.save(storedFile);
 		
-		return modelMapper.map(savedFile, FileResponseDto.class);
+		FileResponseDto fileResponseDto = modelMapper.map(savedFile, FileResponseDto.class);
+		fileResponseDto.setShareLink(
+				baseUrl + "/share/" + shareToken
+			);
 		
+		return fileResponseDto;
+		
+	}
+
+	@Override
+	public FileDownloadDto getSharedFile(String token) {
+		
+		StoredFile storedFile = fileRepository.findByShareToken(token).orElseThrow(() -> new RuntimeException("File not available!"));
+		
+		if(storedFile.getVisibility() == Visibility.PRIVATE){
+			throw new RuntimeException("Access denied!");
+		}
+		
+		Resource resource = storageService.loadFile(storedFile.getFilePath());
+		
+		return new FileDownloadDto(resource, storedFile.getOriginalFileName());
 	}
 
 }
