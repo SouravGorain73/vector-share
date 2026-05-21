@@ -11,7 +11,6 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import com.sourav.vector_share_backend.model.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,15 +21,15 @@ public class JwtService {
 
 	@Value("${jwt.secret-key}")
 	private String jwtSecretKey;
-	public String generateToken(User user) {
+	public String generateToken(CustomUserDetails userDetails) {
 		
 		Map<String, Object> claims = new HashMap<>();
 		
-		claims.put("userId", user.getId());
+		claims.put("userId", userDetails.getUser().getId());
 		
 		return Jwts.builder()
 				.claims(claims)
-				.subject(user.getEmail())
+				.subject(userDetails.getUsername())
 				.issuedAt(new Date())
 				.expiration(new Date(System.currentTimeMillis() + 1000*60*60*24))
 				.signWith(getSigningKey())
