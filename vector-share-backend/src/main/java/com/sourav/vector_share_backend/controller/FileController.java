@@ -75,4 +75,12 @@ public class FileController {
 		
 		return ResponseEntity.ok(updatedFile);
 	}
+	
+	@PostMapping("/{fileId}/regenerate-link")
+	public ResponseEntity<FileResponseDto> regenerateShareLink(@PathVariable Long fileId){
+		
+		FileResponseDto file = fileService.regenerateShareLink(fileId);
+		
+		return ResponseEntity.ok(file);
+	}
 }

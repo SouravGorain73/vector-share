@@ -48,15 +48,13 @@ public class FileServiceImpl implements FileService{
 		//Save the file physically
 		String filePath = storageService.saveFile(file, storedFileName);
 		
-		String shareToken = generateShareToken();
-		
 		StoredFile storedFile = StoredFile.builder()
 				.originalFileName(file.getOriginalFilename())
 				.storedFileName(storedFileName)
 				.filePath(filePath)
 				.fileSize(file.getSize())
 				.visibility(visibility)
-				.shareToken(shareToken)
+				.shareToken(generateShareToken())
 				.user(user)
 				.build();
 		
@@ -65,7 +63,7 @@ public class FileServiceImpl implements FileService{
 		
 		FileResponseDto fileResponseDto = modelMapper.map(savedFile, FileResponseDto.class);
 		fileResponseDto.setShareLink(
-				baseUrl + "/share/" + shareToken
+				generateShareLink(storedFile.getShareToken())
 			);
 		
 		return fileResponseDto;
@@ -114,7 +112,7 @@ public class FileServiceImpl implements FileService{
 					FileResponseDto dto = modelMapper.map(file, FileResponseDto.class);
 					if(file.getShareToken() != null) {
 						dto.setShareLink(
-							baseUrl + "/share/" + file.getShareToken()
+							generateShareLink(file.getShareToken())
 						);
 					}
 					return dto;
@@ -162,8 +160,30 @@ public class FileServiceImpl implements FileService{
 		
 		return fileDto;
 	}
+
+	@Override
+	public FileResponseDto regenerateShareLink(Long fileId) {
+		
+		StoredFile file = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		
+		file.setShareToken(generateShareToken());
+		
+		StoredFile updatedFile = fileRepository.save(file);
+		
+		FileResponseDto fileDto = modelMapper.map(updatedFile, FileResponseDto.class);
+		
+		fileDto.setShareLink(
+				generateShareLink(updatedFile.getShareToken())
+		);
+		
+		return fileDto;
+	}
 	
 	private String generateShareToken() {
 		return UUID.randomUUID().toString();
+	}
+	
+	private String generateShareLink(String token) {
+		return baseUrl + "/files/share/" + token;
 	}
 }

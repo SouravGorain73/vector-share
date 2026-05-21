@@ -22,5 +22,7 @@ public interface FileService {
 	public void deleteFile(Long fileId);
 	
 	public FileResponseDto updateVisibility(Long fileId, UpdateVisibilityDto visibilityDto);
+	
+	public FileResponseDto regenerateShareLink(Long fileId);
 
 }
