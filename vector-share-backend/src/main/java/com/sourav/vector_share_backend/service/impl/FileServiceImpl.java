@@ -9,9 +9,10 @@ import java.util.UUID;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.sourav.vector_share_backend.dto.request.UpdateVisibilityDto;
 import com.sourav.vector_share_backend.dto.response.FileDownloadDto;
 import com.sourav.vector_share_backend.dto.response.FileResponseDto;
@@ -20,6 +21,7 @@ import com.sourav.vector_share_backend.model.StoredFile;
 import com.sourav.vector_share_backend.model.User;
 import com.sourav.vector_share_backend.repository.FileRepository;
 import com.sourav.vector_share_backend.repository.UserRepository;
+import com.sourav.vector_share_backend.security.CustomUserDetails;
 import com.sourav.vector_share_backend.service.FileService;
 import com.sourav.vector_share_backend.service.StorageService;
 
@@ -38,7 +40,9 @@ public class FileServiceImpl implements FileService{
 	private String baseUrl;
 
 	@Override
-	public FileResponseDto uploadNewFile(MultipartFile file, Visibility visibility, Long userId) {
+	public FileResponseDto uploadNewFile(MultipartFile file, Visibility visibility) {
+		
+		Long userId = getAuthenticatedUser().getId();
 		
 		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
 		
@@ -97,10 +101,12 @@ public class FileServiceImpl implements FileService{
 	    }
 		
 		return new FileDownloadDto(resource, storedFile.getOriginalFileName(), contentType);
-	}
+	} 
 
 	@Override
-	public List<FileResponseDto> getAllFilesByUser(Long userId) {
+	public List<FileResponseDto> getAllFilesByUser() {
+		
+		Long userId = getAuthenticatedUser().getId();
 		
 		List<StoredFile> files = fileRepository.findByUserId(userId);
 		if(files == null) {
@@ -122,7 +128,8 @@ public class FileServiceImpl implements FileService{
 	
 	public void deleteFile(Long fileId) {
 		
-		StoredFile storedFile = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		//Check the it's the user's file or not
+		StoredFile storedFile = getAuthorizedFile(fileId);
 		
 		//Delete the actual file
 		storageService.deleteFile(
@@ -136,7 +143,8 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public FileResponseDto updateVisibility(Long fileId, UpdateVisibilityDto visibilityDto) {
 		
-		StoredFile file = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		//check it's the user's file or not
+		StoredFile file = getAuthorizedFile(fileId);
 		
 		file.setVisibility(visibilityDto.getVisibility());
 		
@@ -164,7 +172,8 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public FileResponseDto regenerateShareLink(Long fileId) {
 		
-		StoredFile file = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		//check it's the user's file or not
+		StoredFile file = getAuthorizedFile(fileId);
 		
 		file.setShareToken(generateShareToken());
 		
@@ -185,5 +194,25 @@ public class FileServiceImpl implements FileService{
 	
 	private String generateShareLink(String token) {
 		return baseUrl + "/files/share/" + token;
+	}
+	
+	private User getAuthenticatedUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+		
+		return userDetails.getUser();
+	}
+	
+	private StoredFile getAuthorizedFile(Long fileId) {
+		
+		Long userId = getAuthenticatedUser().getId();
+		
+		StoredFile storedFile = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		
+		if(!storedFile.getUser().getId().equals(userId)) {
+			throw new RuntimeException("Unauthorized Access!");
+		}
+		return storedFile;
 	}
 }

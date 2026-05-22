@@ -35,7 +35,7 @@ public class FileController {
 	@PostMapping("/upload")
 	public ResponseEntity<FileResponseDto> uploadNewFile(@RequestParam MultipartFile file, @RequestParam Visibility visibility, @RequestParam Long userId){
 		
-		FileResponseDto uploadedFile = fileService.uploadNewFile(file, visibility, userId);
+		FileResponseDto uploadedFile = fileService.uploadNewFile(file, visibility);
 		
 		return new ResponseEntity<FileResponseDto>(uploadedFile, HttpStatus.CREATED);
 	}
@@ -55,9 +55,9 @@ public class FileController {
 				.body(file.getResource());
 	}
 	
-	@GetMapping("/user/{userId}")
-	public ResponseEntity<List<FileResponseDto>> getAllFilesByUser(@PathVariable Long userId){
-		List<FileResponseDto> files = fileService.getAllFilesByUser(userId);
+	@GetMapping("/user")
+	public ResponseEntity<List<FileResponseDto>> getAllFilesByUser(){
+		List<FileResponseDto> files = fileService.getAllFilesByUser();
 		
 		return ResponseEntity.ok(files);
 	}

@@ -13,11 +13,11 @@ import com.sourav.vector_share_backend.enums.Visibility;
 @Service
 public interface FileService {
 	
-	public FileResponseDto uploadNewFile(MultipartFile file, Visibility visibility, Long userId);
+	public FileResponseDto uploadNewFile(MultipartFile file, Visibility visibility);
 	
 	public FileDownloadDto getSharedFile(String token);
 	
-	public List<FileResponseDto> getAllFilesByUser(Long userId);
+	public List<FileResponseDto> getAllFilesByUser();
 	
 	public void deleteFile(Long fileId);
 	
