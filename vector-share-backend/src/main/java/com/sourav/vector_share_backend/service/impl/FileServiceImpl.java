@@ -17,6 +17,8 @@ import com.sourav.vector_share_backend.dto.request.UpdateVisibilityDto;
 import com.sourav.vector_share_backend.dto.response.FileDownloadDto;
 import com.sourav.vector_share_backend.dto.response.FileResponseDto;
 import com.sourav.vector_share_backend.enums.Visibility;
+import com.sourav.vector_share_backend.exceptions.ResourceNotFoundException;
+import com.sourav.vector_share_backend.exceptions.UnauthorizedAccessException;
 import com.sourav.vector_share_backend.model.StoredFile;
 import com.sourav.vector_share_backend.model.User;
 import com.sourav.vector_share_backend.repository.FileRepository;
@@ -44,7 +46,7 @@ public class FileServiceImpl implements FileService{
 		
 		Long userId = getAuthenticatedUser().getId();
 		
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found!"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
 		
 		//Generate unique filename
 		String storedFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
@@ -77,10 +79,10 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public FileDownloadDto getSharedFile(String token) {
 		
-		StoredFile storedFile = fileRepository.findByShareToken(token).orElseThrow(() -> new RuntimeException("File not available!"));
+		StoredFile storedFile = fileRepository.findByShareToken(token).orElseThrow(() -> new ResourceNotFoundException("File not available!"));
 		
 		if(storedFile.getVisibility() == Visibility.PRIVATE){
-			throw new RuntimeException("Access denied!");
+			throw new UnauthorizedAccessException("Access denied!");
 		}
 		
 		Resource resource = storageService.loadFile(storedFile.getFilePath());
@@ -110,7 +112,7 @@ public class FileServiceImpl implements FileService{
 		
 		List<StoredFile> files = fileRepository.findByUserId(userId);
 		if(files == null) {
-			throw new RuntimeException("User not found!");
+			throw new ResourceNotFoundException("User not found!");
 		}
 		
 		return files.stream()
@@ -208,11 +210,12 @@ public class FileServiceImpl implements FileService{
 		
 		Long userId = getAuthenticatedUser().getId();
 		
-		StoredFile storedFile = fileRepository.findById(fileId).orElseThrow(() -> new RuntimeException("File not found!"));
+		StoredFile storedFile = fileRepository.findById(fileId).orElseThrow(() -> new ResourceNotFoundException("File not found!"));
 		
 		if(!storedFile.getUser().getId().equals(userId)) {
-			throw new RuntimeException("Unauthorized Access!");
+			throw new UnauthorizedAccessException("Unauthorized Access!");
 		}
+		
 		return storedFile;
 	}
 }
