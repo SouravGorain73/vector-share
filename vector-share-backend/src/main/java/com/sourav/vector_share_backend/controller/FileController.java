@@ -33,9 +33,13 @@ public class FileController {
 	private final FileService fileService;
 	
 	@PostMapping("/upload")
-	public ResponseEntity<FileResponseDto> uploadNewFile(@RequestParam MultipartFile file, @RequestParam Visibility visibility, @RequestParam Long userId){
+	public ResponseEntity<FileResponseDto> uploadNewFile(@RequestParam MultipartFile file, @RequestParam Visibility visibility){
+		
+		System.out.println("uploadNewFile started excetuing");
 		
 		FileResponseDto uploadedFile = fileService.uploadNewFile(file, visibility);
+		
+		System.out.println("This is Upload file section");
 		
 		return new ResponseEntity<FileResponseDto>(uploadedFile, HttpStatus.CREATED);
 	}
