@@ -44,6 +44,10 @@ public class FileServiceImpl implements FileService{
 	@Override
 	public FileResponseDto uploadNewFile(MultipartFile file, Visibility visibility) {
 		
+		if(file.isEmpty()) {
+			throw new IllegalArgumentException("File can't be empty");
+		}
+		
 		Long userId = getAuthenticatedUser().getId();
 		
 		User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found!"));

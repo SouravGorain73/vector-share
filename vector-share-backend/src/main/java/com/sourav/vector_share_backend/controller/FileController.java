@@ -23,6 +23,7 @@ import com.sourav.vector_share_backend.dto.response.FileResponseDto;
 import com.sourav.vector_share_backend.enums.Visibility;
 import com.sourav.vector_share_backend.service.FileService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -35,11 +36,7 @@ public class FileController {
 	@PostMapping("/upload")
 	public ResponseEntity<FileResponseDto> uploadNewFile(@RequestParam MultipartFile file, @RequestParam Visibility visibility){
 		
-		System.out.println("uploadNewFile started excetuing");
-		
 		FileResponseDto uploadedFile = fileService.uploadNewFile(file, visibility);
-		
-		System.out.println("This is Upload file section");
 		
 		return new ResponseEntity<FileResponseDto>(uploadedFile, HttpStatus.CREATED);
 	}
@@ -74,7 +71,7 @@ public class FileController {
 	}
 	
 	@PostMapping("/{fileId}/visibility")
-	public ResponseEntity<FileResponseDto> updateVisibility(@PathVariable Long fileId, @RequestBody UpdateVisibilityDto visibilityDto){
+	public ResponseEntity<FileResponseDto> updateVisibility(@PathVariable Long fileId, @RequestBody @Valid UpdateVisibilityDto visibilityDto){
 		FileResponseDto updatedFile = fileService.updateVisibility(fileId, visibilityDto);
 		
 		return ResponseEntity.ok(updatedFile);

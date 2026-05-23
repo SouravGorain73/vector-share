@@ -12,6 +12,7 @@ import com.sourav.vector_share_backend.dto.request.UserRequestDto;
 import com.sourav.vector_share_backend.dto.response.UserResponseDto;
 import com.sourav.vector_share_backend.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,13 +23,13 @@ public class UserController {
 	private final UserService userService;
 	
 	@PostMapping("/create")
-	public ResponseEntity<UserResponseDto> registerUser(@RequestBody UserRequestDto userRequestDto){
+	public ResponseEntity<UserResponseDto> registerUser(@RequestBody @Valid UserRequestDto userRequestDto){
 		UserResponseDto user = userService.createUser(userRequestDto);
 		return new ResponseEntity<UserResponseDto>(user, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/get")
-	public ResponseEntity<UserResponseDto> getUser(@RequestBody UserRequestDto userRequestDto){
+	public ResponseEntity<UserResponseDto> getUser(@RequestBody @Valid UserRequestDto userRequestDto){
 		UserResponseDto user = userService.getUser(userRequestDto);
 		return new ResponseEntity<UserResponseDto>(user, HttpStatus.OK);
 	}

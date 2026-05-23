@@ -10,6 +10,7 @@ import com.sourav.vector_share_backend.dto.request.AuthRequestDto;
 import com.sourav.vector_share_backend.dto.response.AuthResponseDto;
 import com.sourav.vector_share_backend.security.AuthService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -20,7 +21,7 @@ public class AuthController {
 	private final AuthService authService;
 	
 	@PostMapping("/login")
-	public ResponseEntity<AuthResponseDto> login(@RequestBody AuthRequestDto request){
+	public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid AuthRequestDto request){
 		
 		return ResponseEntity.ok(authService.login(request));
 	
