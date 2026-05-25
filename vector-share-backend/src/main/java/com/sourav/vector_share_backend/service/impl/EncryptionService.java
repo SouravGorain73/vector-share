@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EncryptionService {
 	
-	private static final String ALGORITHM = "AES";
+	private static final String ALGORITHM = "AES";	//Advanced Encryption Standard
 	
 	@Value("${encryption.secret-key}")
 	private String SECRET_KEY;
