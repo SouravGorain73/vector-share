@@ -1,22 +1,25 @@
 package com.sourav.vector_share_backend.service.impl;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sourav.vector_share_backend.service.StorageService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class LocalStorageService implements StorageService{
 	
 	private final String UPLOAD_DIR = "uploads/";
+	private final EncryptionService encryptionService;
 
 	@Override
 	public String saveFile(MultipartFile file, String fileName) {
@@ -24,7 +27,16 @@ public class LocalStorageService implements StorageService{
 		try {
 			
 			Path path = Paths.get(UPLOAD_DIR, fileName);
-			Files.copy(file.getInputStream(), path);
+			
+//			Files.copy(file.getInputStream(), path);	//Directly saving the file
+			
+			//Encrypting the file first then  store
+			
+			byte[] fileBytes = file.getBytes();
+			
+			byte[] encryptedBytes = encryptionService.encrypt(fileBytes);
+			
+			Files.write(path, encryptedBytes);
 			
 			return path.toString();
 			
@@ -41,15 +53,21 @@ public class LocalStorageService implements StorageService{
 		try {
 			Path filePath = Paths.get(path);
 			
-			Resource resource = new UrlResource(filePath.toUri());
+//			Resource resource = new UrlResource(filePath.toUri());	//Loading the file which is stored directly not encrypted
 			
-			if(resource.exists()) {
-				return resource;
-			}
-			else {
-				throw new RuntimeException("File not found!");
-			}
-		} catch (MalformedURLException e) {
+			//How to load a file form encrypted bytes
+			
+			//Step1: Read the encrypted bytes
+			byte[] encryptedBytes = Files.readAllBytes(filePath);
+			
+			//Step2: Decrypt the bytes
+			byte[] decryptedBytes = encryptionService.decrypt(encryptedBytes);
+			
+			//Step3: Return the decrypted bytes
+			return new ByteArrayResource(decryptedBytes);
+			
+			
+		} catch (IOException e) {
 			throw new RuntimeException("File not found!");
 		}
 	}

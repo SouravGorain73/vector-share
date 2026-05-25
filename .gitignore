@@ -2,3 +2,5 @@
 
 # Ignore uploaded user files
 vector-share-backend/uploads/
+
+vector-share-backend/src/main/resources/application.properties
