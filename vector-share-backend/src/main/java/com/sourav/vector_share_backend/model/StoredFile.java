@@ -6,13 +6,16 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.sourav.vector_share_backend.enums.Visibility;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +28,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(indexes = 
+	@Index(name = "idx_user_id",
+		columnList = "user_Id"
+	)
+)
 public class StoredFile {
 
     @Id
@@ -45,6 +53,7 @@ public class StoredFile {
     @Enumerated(EnumType.STRING)
     private Visibility visibility;
 
+    @Column(unique = true)	//Autumatically creates index
     private String shareToken;
 
     @ManyToOne
