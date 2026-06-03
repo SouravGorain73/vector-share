@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.sourav.vector_share_backend.security.JwtAuthenticationFilter;
+import com.sourav.vector_share_backend.security.OAuth2SuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	
 	private final JwtAuthenticationFilter authenticationFilter;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -49,14 +51,15 @@ public class SecurityConfig {
 		httpSecurity
 		 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 		 .csrf(csrf -> csrf.disable())
-		 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+		 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 		 .authorizeHttpRequests(auth -> auth
 				 .requestMatchers("/auth/**").permitAll()
 				 .requestMatchers("/user/create").permitAll()
 				 .requestMatchers("/files/share/**").permitAll()
 				 .anyRequest().authenticated()
 		)
-		.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+		.oauth2Login(oauth -> oauth.successHandler(oAuth2SuccessHandler));
 		
 		return httpSecurity.build();
 	}

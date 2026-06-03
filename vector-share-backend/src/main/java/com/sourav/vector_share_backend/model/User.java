@@ -2,8 +2,12 @@ package com.sourav.vector_share_backend.model;
 
 import java.util.List;
 
+import com.sourav.vector_share_backend.enums.AuthProvider;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -36,4 +40,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<StoredFile> files;
+    
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
 }
