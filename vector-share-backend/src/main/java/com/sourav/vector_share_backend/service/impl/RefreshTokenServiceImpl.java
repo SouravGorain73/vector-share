@@ -29,7 +29,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService{
 		refreshTokenRepository.deleteByUser(user);
 		
 		RefreshToken refreshToken = RefreshToken.builder()
-				.token(UUID.randomUUID().toString())
+				.refreshToken(UUID.randomUUID().toString())
 				.expiryDate(LocalDateTime.now().plusSeconds(refreshTokenDuration / 1000))
 				.user(user)
 				.build();

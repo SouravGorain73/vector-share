@@ -38,7 +38,7 @@ public class AuthService {
 		
 		RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 		
-		return new AuthResponseDto(accessToken, refreshToken.getToken());
+		return new AuthResponseDto(accessToken, refreshToken.getRefreshToken());
 	}
 	
 	public RefreshTokenResponseDto refreshToken(RefreshTokenRequestDto request) {
@@ -49,7 +49,9 @@ public class AuthService {
 		
 		String accessToken = jwtService.generateToken(new CustomUserDetails(user));
 		
-		return new RefreshTokenResponseDto(accessToken);
+		RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+		
+		return new RefreshTokenResponseDto(accessToken, newRefreshToken.getRefreshToken());
 	}
 	
 	public void logout() {
