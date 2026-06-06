@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sourav.vector_share_backend.dto.request.AuthRequestDto;
 import com.sourav.vector_share_backend.dto.request.RefreshTokenRequestDto;
+import com.sourav.vector_share_backend.dto.request.ResetPasswordRequestDto;
 import com.sourav.vector_share_backend.dto.request.SendOtpRequestDto;
 import com.sourav.vector_share_backend.dto.request.UserRequestDto;
 import com.sourav.vector_share_backend.dto.request.VerifyOtpRequestDto;
@@ -17,7 +18,6 @@ import com.sourav.vector_share_backend.dto.response.RefreshTokenResponseDto;
 import com.sourav.vector_share_backend.dto.response.UserResponseDto;
 import com.sourav.vector_share_backend.security.AuthService;
 import com.sourav.vector_share_backend.service.OtpService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
 	
 	private final OtpService otpService;
 	private final AuthService authService;
@@ -71,5 +72,20 @@ public class AuthController {
 		System.out.println("Refresh Token called!");
 		return ResponseEntity.status(HttpStatus.OK).body(authService.refreshToken(request));
 	}
+	
+	@PostMapping("/forgot-password/send-otp")
+	public ResponseEntity<String> sendPasswordResetOtp(@RequestBody @Valid SendOtpRequestDto request){
+		
+		authService.sendPasswordResetOtp(request.getEmail());
+		
+		return ResponseEntity.ok("Password reset OTP sent successfully");
+	}
 
+	@PostMapping("/reset-password")
+	public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequestDto request){
+		
+		authService.resetPassword(request);
+		
+		return ResponseEntity.ok("Password reset successfully");
+	}
 }

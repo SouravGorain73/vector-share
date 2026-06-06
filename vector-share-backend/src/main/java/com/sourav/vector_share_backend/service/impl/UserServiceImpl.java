@@ -4,6 +4,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sourav.vector_share_backend.dto.request.ResetPasswordRequestDto;
 import com.sourav.vector_share_backend.dto.request.UserRequestDto;
 import com.sourav.vector_share_backend.dto.response.UserResponseDto;
 import com.sourav.vector_share_backend.model.User;
@@ -15,11 +16,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
-	
+
 	private final UserRepository userRepository;
 	private final ModelMapper modelMapper;
 	private final PasswordEncoder passwordEncoder;
-
+	
 	@Override
 	public UserResponseDto createUser(UserRequestDto userDto) {
 		if(existsByEmail(userDto.getEmail())) {
@@ -42,7 +43,19 @@ public class UserServiceImpl implements UserService{
 		
 	}
 	
-	private Boolean existsByEmail(String email) {
+	@Override
+	public void updatePassword(ResetPasswordRequestDto request) {
+		
+		User user = userRepository.findByEmail(request.getEmail())
+				.orElseThrow(() -> new RuntimeException("User not found!"));
+		
+		user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+		
+		userRepository.save(user);
+	}
+	
+	@Override
+	public boolean existsByEmail(String email) {
 		return userRepository.existsByEmail(email);
 	}
 	

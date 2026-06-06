@@ -24,5 +24,6 @@ public class UserController {
 		UserResponseDto user = userService.getUser(email);
 		return new ResponseEntity<UserResponseDto>(user, HttpStatus.OK);
 	}
+	
 
 }
