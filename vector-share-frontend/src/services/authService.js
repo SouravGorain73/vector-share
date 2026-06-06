@@ -4,8 +4,20 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 const BACKEND_ROOT = API_BASE_URL.replace('/api/v1', '');
 
 export const authService = {
+  // ---- OTP Verification ----
+  async sendOtp(email) {
+    const response = await api.post('/auth/send-otp', { email });
+    return response.data;
+  },
+
+  async verifyOtp(email, otp) {
+    const response = await api.post('/auth/verify-otp', { email, otp });
+    return response.data;
+  },
+
+  // ---- Auth ----
   async register(name, email, password) {
-    const response = await api.post('/user/create', { name, email, password });
+    const response = await api.post('/auth/register', { name, email, password });
     return response.data;
   },
 
@@ -29,7 +41,24 @@ export const authService = {
     }
   },
 
-  // Token storage
+  // ---- Forgot Password ----
+  async sendPasswordResetOtp(email) {
+    const response = await api.post('/auth/forgot-password/send-otp', { email });
+    return response.data;
+  },
+
+  async resetPassword(email, newPassword) {
+    const response = await api.post('/auth/reset-password', { email, newPassword });
+    return response.data;
+  },
+
+  // ---- User ----
+  async getUserByEmail(email) {
+    const response = await api.get(`/user/${email}`);
+    return response.data;
+  },
+
+  // ---- Token storage ----
   saveToken(token) {
     localStorage.setItem('vs_token', token);
   },
@@ -46,7 +75,7 @@ export const authService = {
     return localStorage.getItem('vs_refresh_token');
   },
 
-  // User storage
+  // ---- User storage ----
   saveUser(user) {
     localStorage.setItem('vs_user', JSON.stringify(user));
   },
@@ -56,7 +85,7 @@ export const authService = {
     return user ? JSON.parse(user) : null;
   },
 
-  // Clear all auth data
+  // ---- Clear all auth data ----
   logout() {
     localStorage.removeItem('vs_token');
     localStorage.removeItem('vs_refresh_token');
@@ -67,12 +96,12 @@ export const authService = {
     return !!localStorage.getItem('vs_token');
   },
 
-  // Google OAuth URL
+  // ---- Google OAuth URL ----
   getGoogleOAuthUrl() {
-    return `${BACKEND_ROOT}/oauth2/authorization/google`;
+    return `${BACKEND_ROOT}/api/v1/oauth2/authorization/google`;
   },
 
-  // Decode JWT payload
+  // ---- Decode JWT payload ----
   decodeToken(token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));

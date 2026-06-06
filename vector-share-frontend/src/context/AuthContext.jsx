@@ -11,25 +11,49 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Restore auth state from localStorage on mount
     const savedToken = authService.getToken();
     const savedUser = authService.getUser();
     if (savedToken && savedUser) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setToken(savedToken);
       setUser(savedUser);
     }
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const extractUserFromToken = (jwtToken) => {
+  const extractEmailFromToken = (jwtToken) => {
     const payload = authService.decodeToken(jwtToken);
     if (!payload) return null;
-    return {
-      id: payload.userId,
-      email: payload.sub,
-      name: payload.name || payload.sub?.split('@')[0] || 'User',
-    };
+    return payload.sub; // email is stored as "sub" in JWT
+  };
+
+  const fetchAndSetUser = async (accessToken) => {
+    const email = extractEmailFromToken(accessToken);
+    if (!email) return null;
+
+    try {
+      // Fetch full user data from backend to get name, id, etc.
+      const userData = await authService.getUserByEmail(email);
+      const userObj = {
+        id: userData.id,
+        email: userData.email,
+        name: userData.name || email.split('@')[0],
+      };
+      authService.saveUser(userObj);
+      setUser(userObj);
+      return userObj;
+    } catch {
+      // Fallback to JWT data if user fetch fails
+      const payload = authService.decodeToken(accessToken);
+      const userObj = {
+        id: payload?.userId,
+        email: email,
+        name: email.split('@')[0],
+      };
+      authService.saveUser(userObj);
+      setUser(userObj);
+      return userObj;
+    }
   };
 
   const login = async (email, password) => {
@@ -41,15 +65,13 @@ export function AuthProvider({ children }) {
       authService.saveRefreshToken(refreshToken);
       setToken(accessToken);
 
-      const userData = extractUserFromToken(accessToken);
-      authService.saveUser(userData);
-      setUser(userData);
+      await fetchAndSetUser(accessToken);
 
       toast.success('Logged in successfully!');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Invalid credentials';
-      toast.error(message);
+      const message = error.response?.data?.message || error.response?.data || 'Invalid credentials';
+      toast.error(typeof message === 'string' ? message : 'Login failed');
       return { success: false, error: message };
     }
   };
@@ -57,28 +79,21 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password) => {
     try {
       await authService.register(name, email, password);
-      toast.success('Account created! Logging you in...');
-      // Auto-login after registration
-      const result = await login(email, password);
-      return result;
+      toast.success('Account created! Please login.');
+      return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
-      toast.error(message);
+      const message = error.response?.data?.message || error.response?.data || 'Registration failed';
+      toast.error(typeof message === 'string' ? message : 'Registration failed');
       return { success: false, error: message };
     }
   };
 
-  const handleOAuthCallback = (accessToken) => {
+  const handleOAuthCallback = async (accessToken) => {
     authService.saveToken(accessToken);
     setToken(accessToken);
 
-    const userData = extractUserFromToken(accessToken);
-    if (userData) {
-      authService.saveUser(userData);
-      setUser(userData);
-    }
+    await fetchAndSetUser(accessToken);
     // Note: refresh token is set as HTTPOnly cookie by backend for OAuth
-    // We won't have it in localStorage, so refresh will rely on re-login
   };
 
   const logout = async () => {
@@ -111,6 +126,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

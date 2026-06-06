@@ -1,5 +1,7 @@
 import api from './api';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+
 export const fileService = {
   async uploadFile(file, visibility) {
     const formData = new FormData();
@@ -32,6 +34,29 @@ export const fileService = {
   async regenerateShareLink(fileId) {
     const response = await api.post(`/files/${fileId}/regenerate-link`);
     return response.data;
+  },
+
+  /**
+   * Convert backend API share link to frontend-friendly share link.
+   * Backend returns: http://localhost:8080/api/v1/files/share/{token}
+   * Frontend needs:  http://localhost:5173/share/{token}
+   */
+  getFrontendShareUrl(backendShareLink) {
+    if (!backendShareLink) return '';
+    // Extract the token from the backend URL
+    const match = backendShareLink.match(/\/files\/share\/(.+)$/);
+    if (match) {
+      return `${window.location.origin}/share/${match[1]}`;
+    }
+    return backendShareLink;
+  },
+
+  /**
+   * Get the backend API URL for downloading/viewing a shared file.
+   * Used by PublicFileView to fetch the actual file content.
+   */
+  getFileDownloadUrl(shareToken) {
+    return `${API_BASE_URL}/files/share/${shareToken}`;
   },
 
   formatFileSize(bytes) {

@@ -87,7 +87,8 @@ function Upload() {
 
   const copyShareLink = () => {
     if (uploadResult?.shareLink) {
-      navigator.clipboard.writeText(uploadResult.shareLink);
+      const frontendLink = fileService.getFrontendShareUrl(uploadResult.shareLink);
+      navigator.clipboard.writeText(frontendLink);
       setCopied(true);
       toast.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
@@ -288,7 +289,7 @@ function Upload() {
                   <input
                     type="text"
                     readOnly
-                    value={uploadResult.shareLink}
+                    value={fileService.getFrontendShareUrl(uploadResult.shareLink)}
                     className="flex-1 px-3 py-2 bg-gray-800/60 border border-gray-700/30 rounded-lg text-sm text-gray-300 truncate"
                   />
                   <button

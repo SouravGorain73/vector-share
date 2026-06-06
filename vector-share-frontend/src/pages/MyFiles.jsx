@@ -93,7 +93,8 @@ function MyFiles() {
   };
 
   const copyShareLink = (fileId, link) => {
-    navigator.clipboard.writeText(link);
+    const frontendLink = fileService.getFrontendShareUrl(link);
+    navigator.clipboard.writeText(frontendLink);
     setCopiedId(fileId);
     toast.success('Link copied!');
     setTimeout(() => setCopiedId(null), 2000);
@@ -361,7 +362,7 @@ function MyFiles() {
                 </button>
                 {file.shareLink && (
                   <a
-                    href={file.shareLink}
+                    href={fileService.getFrontendShareUrl(file.shareLink)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-lg text-gray-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all"
