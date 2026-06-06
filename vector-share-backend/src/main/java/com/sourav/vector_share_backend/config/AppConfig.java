@@ -3,7 +3,6 @@ package com.sourav.vector_share_backend.config;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 @Configuration
 public class AppConfig {
 	
@@ -11,5 +10,6 @@ public class AppConfig {
 	public ModelMapper getModelMapper() {
 		return new ModelMapper();
 	}
+	
 
 }

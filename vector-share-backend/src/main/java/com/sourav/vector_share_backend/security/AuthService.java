@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 
 import com.sourav.vector_share_backend.dto.request.AuthRequestDto;
 import com.sourav.vector_share_backend.dto.request.RefreshTokenRequestDto;
+import com.sourav.vector_share_backend.dto.request.UserRequestDto;
 import com.sourav.vector_share_backend.dto.response.AuthResponseDto;
 import com.sourav.vector_share_backend.dto.response.RefreshTokenResponseDto;
+import com.sourav.vector_share_backend.dto.response.UserResponseDto;
+import com.sourav.vector_share_backend.model.EmailVerification;
 import com.sourav.vector_share_backend.model.RefreshToken;
 import com.sourav.vector_share_backend.model.User;
 import com.sourav.vector_share_backend.service.RefreshTokenService;
+import com.sourav.vector_share_backend.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +27,24 @@ public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
 	private final RefreshTokenService refreshTokenService;
+	private final EmailVerificationRepository emailVerificationRepository;
+	private final UserService userService;
+	
+	public UserResponseDto register(UserRequestDto userRequestDto) {
+		
+		EmailVerification verification = emailVerificationRepository.findByEmail(userRequestDto.getEmail())
+				.orElseThrow(() -> new RuntimeException("Email not verified!"));
+		
+		if(!verification.isVerified()) {
+			throw new RuntimeException("Email not verified!");
+		}
+		
+		UserResponseDto response = userService.createUser(userRequestDto);
+		
+		emailVerificationRepository.delete(verification);
+		
+		return response;
+	}
 	
 	public AuthResponseDto login(AuthRequestDto loginRequest) {
 		

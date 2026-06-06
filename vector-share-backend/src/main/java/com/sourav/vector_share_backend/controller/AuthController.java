@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sourav.vector_share_backend.dto.request.AuthRequestDto;
 import com.sourav.vector_share_backend.dto.request.RefreshTokenRequestDto;
+import com.sourav.vector_share_backend.dto.request.SendOtpRequestDto;
 import com.sourav.vector_share_backend.dto.request.UserRequestDto;
+import com.sourav.vector_share_backend.dto.request.VerifyOtpRequestDto;
 import com.sourav.vector_share_backend.dto.response.AuthResponseDto;
 import com.sourav.vector_share_backend.dto.response.RefreshTokenResponseDto;
 import com.sourav.vector_share_backend.dto.response.UserResponseDto;
 import com.sourav.vector_share_backend.security.AuthService;
-import com.sourav.vector_share_backend.service.UserService;
+import com.sourav.vector_share_backend.service.OtpService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +26,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 	
+	private final OtpService otpService;
 	private final AuthService authService;
-	private final UserService userService;
+	
+	@PostMapping("/send-otp")
+	public ResponseEntity<String> sendOtp(@RequestBody @Valid SendOtpRequestDto request){
+		
+		otpService.sendOtp(request.getEmail());
+		
+		return ResponseEntity.status(HttpStatus.OK).body("OTP sent successfully");
+	}
+	
+	@PostMapping("/verify-otp")
+	public ResponseEntity<String> verifyOtp(@RequestBody @Valid VerifyOtpRequestDto request){
+		
+		otpService.verifyOtp(request.getEmail(), request.getOtp());
+		
+		return ResponseEntity.status(HttpStatus.OK).body("Email verified successfully");
+	}
 
 	@PostMapping("/register")
-	public ResponseEntity<UserResponseDto> registerUser(@RequestBody @Valid UserRequestDto userRequestDto){
-		UserResponseDto user = userService.createUser(userRequestDto);
+	public ResponseEntity<UserResponseDto> register(@RequestBody @Valid UserRequestDto userRequestDto){
+		UserResponseDto user = authService.register(userRequestDto);
 		return new ResponseEntity<UserResponseDto>(user, HttpStatus.CREATED);
 	}
 	
