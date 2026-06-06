@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import fileService from '../services/fileService';
+import FileIcon, { } from '../components/FileIcon';
 import {
   FolderOpen,
   Globe,
@@ -9,20 +10,49 @@ import {
   HardDrive,
   Upload,
   TrendingUp,
-  FileText,
   ExternalLink,
   Clock,
+  ArrowRight,
 } from 'lucide-react';
+
+// Animated counter hook
+function useCountUp(target, duration = 1000) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (target === 0 || typeof target !== 'number') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCount(target);
+      return;
+    }
+    
+    const startTime = performance.now();
+
+    function animate(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = Math.round(eased * target);
+      setCount(value);
+      if (progress < 1) {
+        ref.current = requestAnimationFrame(animate);
+      }
+    }
+
+    ref.current = requestAnimationFrame(animate);
+    return () => ref.current && cancelAnimationFrame(ref.current);
+  }, [target, duration]);
+
+  return count;
+}
 
 function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadFiles();
-  }, []);
 
   const loadFiles = async () => {
     try {
@@ -35,42 +65,69 @@ function Dashboard() {
     }
   };
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadFiles();
+  }, []);
+
   const totalFiles = files.length;
   const publicFiles = files.filter((f) => f.visibility === 'PUBLIC').length;
   const privateFiles = files.filter((f) => f.visibility === 'PRIVATE').length;
   const totalSize = files.reduce((sum, f) => sum + (f.fileSize || 0), 0);
   const recentFiles = [...files].sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)).slice(0, 5);
 
+  // Animated counters
+  const animatedTotal = useCountUp(loading ? 0 : totalFiles);
+  const animatedPublic = useCountUp(loading ? 0 : publicFiles);
+  const animatedPrivate = useCountUp(loading ? 0 : privateFiles);
+
+  // File type distribution
+  const typeDistribution = files.reduce((acc, f) => {
+    const ext = f.originalFileName?.split('.').pop()?.toLowerCase() || 'other';
+    const category = getFileCategory(ext);
+    acc[category] = (acc[category] || 0) + 1;
+    return acc;
+  }, {});
+
+  const typeColors = {
+    Images: 'from-pink-500 to-rose-400',
+    Documents: 'from-blue-500 to-cyan-400',
+    Code: 'from-yellow-500 to-amber-400',
+    Media: 'from-purple-500 to-violet-400',
+    Archives: 'from-amber-500 to-orange-400',
+    Other: 'from-gray-500 to-gray-400',
+  };
+
   const stats = [
     {
       label: 'Total Files',
-      value: totalFiles,
+      value: animatedTotal,
       icon: FolderOpen,
       gradient: 'from-purple-500 to-indigo-600',
-      bgGlow: 'bg-purple-500/10',
     },
     {
       label: 'Public Files',
-      value: publicFiles,
+      value: animatedPublic,
       icon: Globe,
       gradient: 'from-emerald-500 to-teal-600',
-      bgGlow: 'bg-emerald-500/10',
     },
     {
       label: 'Private Files',
-      value: privateFiles,
+      value: animatedPrivate,
       icon: Lock,
       gradient: 'from-amber-500 to-orange-600',
-      bgGlow: 'bg-amber-500/10',
     },
     {
       label: 'Storage Used',
       value: fileService.formatFileSize(totalSize),
       icon: HardDrive,
       gradient: 'from-pink-500 to-rose-600',
-      bgGlow: 'bg-pink-500/10',
     },
   ];
+
+  // Storage used percentage (max 50MB per file, estimate 500MB total for free plan)
+  const maxStorage = 500 * 1024 * 1024; // 500 MB
+  const storagePercent = Math.min((totalSize / maxStorage) * 100, 100);
 
   return (
     <div className="page-enter">
@@ -102,10 +159,71 @@ function Dashboard() {
         ))}
       </div>
 
+      {/* Storage Bar + File Type Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Storage Usage */}
+        <div className="glass-card p-6 animate-fade-in-up stagger-5">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <HardDrive size={18} className="text-purple-400" />
+            Storage Usage
+          </h2>
+          <div className="mb-3">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-gray-400">{fileService.formatFileSize(totalSize)} used</span>
+              <span className="text-gray-500">500 MB</span>
+            </div>
+            <div className="w-full h-3 bg-gray-800/60 rounded-full overflow-hidden">
+              <div
+                className="progress-bar h-full"
+                style={{ width: loading ? '0%' : `${storagePercent}%` }}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500">
+            {loading ? '—' : `${storagePercent.toFixed(1)}%`} of your storage used
+          </p>
+        </div>
+
+        {/* File Type Distribution */}
+        <div className="glass-card p-6 animate-fade-in-up stagger-6">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <TrendingUp size={18} className="text-purple-400" />
+            File Types
+          </h2>
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-6 bg-gray-800/40 rounded animate-shimmer" />
+              ))}
+            </div>
+          ) : Object.keys(typeDistribution).length === 0 ? (
+            <p className="text-gray-500 text-sm">No files yet</p>
+          ) : (
+            <div className="space-y-3">
+              {Object.entries(typeDistribution)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([category, count]) => (
+                  <div key={category} className="flex items-center gap-3">
+                    <span className="text-sm text-gray-300 w-20 truncate">{category}</span>
+                    <div className="flex-1 h-2 bg-gray-800/40 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${typeColors[category] || typeColors.Other}`}
+                        style={{ width: `${(count / totalFiles) * 100}%`, transition: 'width 0.5s ease' }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 w-8 text-right">{count}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Quick Actions + Recent Files */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Quick Actions */}
-        <div className="glass-card p-6 animate-fade-in-up stagger-5">
+        <div className="glass-card p-6 animate-fade-in-up stagger-7">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <TrendingUp size={18} className="text-purple-400" />
             Quick Actions
@@ -118,10 +236,11 @@ function Dashboard() {
               <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
                 <Upload size={18} className="text-purple-400" />
               </div>
-              <div className="text-left">
+              <div className="text-left flex-1">
                 <p className="font-semibold text-sm">Upload File</p>
                 <p className="text-xs text-gray-500">Share a new file</p>
               </div>
+              <ArrowRight size={16} className="text-gray-600 group-hover:text-purple-400 transition-colors" />
             </button>
             <button
               onClick={() => navigate('/myfiles')}
@@ -130,16 +249,17 @@ function Dashboard() {
               <div className="w-10 h-10 rounded-lg bg-gray-700/30 flex items-center justify-center group-hover:bg-gray-700/50 transition-colors">
                 <FolderOpen size={18} className="text-gray-400" />
               </div>
-              <div className="text-left">
+              <div className="text-left flex-1">
                 <p className="font-semibold text-sm">Manage Files</p>
                 <p className="text-xs text-gray-500">View all your files</p>
               </div>
+              <ArrowRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
             </button>
           </div>
         </div>
 
         {/* Recent Files */}
-        <div className="lg:col-span-2 glass-card p-6 animate-fade-in-up stagger-6">
+        <div className="lg:col-span-2 glass-card p-6 animate-fade-in-up stagger-8">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Clock size={18} className="text-purple-400" />
             Recent Files
@@ -153,7 +273,9 @@ function Dashboard() {
             </div>
           ) : recentFiles.length === 0 ? (
             <div className="text-center py-12">
-              <FileText size={40} className="mx-auto text-gray-600 mb-3" />
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gray-800/40 flex items-center justify-center mb-4">
+                <FolderOpen size={28} className="text-gray-600" />
+              </div>
               <p className="text-gray-400 font-medium">No files yet</p>
               <p className="text-gray-500 text-sm mt-1">Upload your first file to get started</p>
             </div>
@@ -164,9 +286,7 @@ function Dashboard() {
                   key={file.id}
                   className="flex items-center gap-4 p-3.5 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-colors group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gray-700/50 flex items-center justify-center shrink-0">
-                    <FileText size={18} className="text-gray-400" />
-                  </div>
+                  <FileIcon filename={file.originalFileName} size={18} className="w-10 h-10 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-200 truncate">{file.originalFileName}</p>
                     <p className="text-xs text-gray-500">
@@ -200,6 +320,21 @@ function Dashboard() {
       </div>
     </div>
   );
+}
+
+function getFileCategory(ext) {
+  const images = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'];
+  const docs = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'md', 'ppt', 'pptx'];
+  const code = ['js', 'jsx', 'ts', 'tsx', 'py', 'java', 'html', 'css', 'json', 'xml', 'c', 'cpp'];
+  const media = ['mp4', 'avi', 'mkv', 'mov', 'mp3', 'wav', 'flac', 'ogg', 'webm'];
+  const archives = ['zip', 'rar', '7z', 'tar', 'gz'];
+
+  if (images.includes(ext)) return 'Images';
+  if (docs.includes(ext)) return 'Documents';
+  if (code.includes(ext)) return 'Code';
+  if (media.includes(ext)) return 'Media';
+  if (archives.includes(ext)) return 'Archives';
+  return 'Other';
 }
 
 export default Dashboard;

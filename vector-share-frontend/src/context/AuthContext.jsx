@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import authService from '../services/authService';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -14,28 +15,36 @@ export function AuthProvider({ children }) {
     const savedToken = authService.getToken();
     const savedUser = authService.getUser();
     if (savedToken && savedUser) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setToken(savedToken);
       setUser(savedUser);
     }
     setLoading(false);
   }, []);
 
+  const extractUserFromToken = (jwtToken) => {
+    const payload = authService.decodeToken(jwtToken);
+    if (!payload) return null;
+    return {
+      id: payload.userId,
+      email: payload.sub,
+      name: payload.name || payload.sub?.split('@')[0] || 'User',
+    };
+  };
+
   const login = async (email, password) => {
     try {
       const data = await authService.login(email, password);
-      const jwtToken = data.token;
-      authService.saveToken(jwtToken);
-      setToken(jwtToken);
+      const { accessToken, refreshToken } = data;
 
-      // Decode basic user info from token payload
-      const payload = JSON.parse(atob(jwtToken.split('.')[1]));
-      const userData = {
-        id: payload.userId,
-        email: payload.sub,
-        name: payload.sub.split('@')[0], // fallback name from email
-      };
+      authService.saveToken(accessToken);
+      authService.saveRefreshToken(refreshToken);
+      setToken(accessToken);
+
+      const userData = extractUserFromToken(accessToken);
       authService.saveUser(userData);
       setUser(userData);
+
       toast.success('Logged in successfully!');
       return { success: true };
     } catch (error) {
@@ -47,7 +56,7 @@ export function AuthProvider({ children }) {
 
   const register = async (name, email, password) => {
     try {
-      const data = await authService.register(name, email, password);
+      await authService.register(name, email, password);
       toast.success('Account created! Logging you in...');
       // Auto-login after registration
       const result = await login(email, password);
@@ -59,7 +68,25 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
+  const handleOAuthCallback = (accessToken) => {
+    authService.saveToken(accessToken);
+    setToken(accessToken);
+
+    const userData = extractUserFromToken(accessToken);
+    if (userData) {
+      authService.saveUser(userData);
+      setUser(userData);
+    }
+    // Note: refresh token is set as HTTPOnly cookie by backend for OAuth
+    // We won't have it in localStorage, so refresh will rely on re-login
+  };
+
+  const logout = async () => {
+    try {
+      await authService.logoutServer();
+    } catch {
+      // Continue with local logout even if server call fails
+    }
     authService.logout();
     setToken(null);
     setUser(null);
@@ -69,7 +96,16 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ user, token, isAuthenticated, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      isAuthenticated,
+      loading,
+      login,
+      register,
+      logout,
+      handleOAuthCallback,
+    }}>
       {children}
     </AuthContext.Provider>
   );

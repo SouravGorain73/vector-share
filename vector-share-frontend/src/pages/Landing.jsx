@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from '../components/landing/HeroSection';
 import FeaturesSection from '../components/landing/FeaturesSection';
@@ -13,7 +13,7 @@ function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
@@ -23,7 +23,7 @@ function Landing() {
   const goToLogin = () => navigate('/login');
 
   return (
-    <div className="landing-page bg-linear-to-b from gray-50 to-gray-100">
+    <div className="landing-page bg-gray-950">
       {/* Hero Section */}
       <HeroSection openSignUp={goToRegister} openSignIn={goToLogin} />
 

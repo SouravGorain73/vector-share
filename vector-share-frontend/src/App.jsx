@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -6,11 +5,13 @@ import DashboardLayout from './layout/DashboardLayout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import OAuthSuccess from './pages/OAuthSuccess';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import MyFiles from './pages/MyFiles';
 import Subsciption from './pages/Subsciption';
 import Transactions from './pages/Transactions';
+import Settings from './pages/Settings';
 import PublicFileView from './pages/PublicFileView';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
           <Route path="/share/:token" element={<PublicFileView />} />
 
           {/* Protected routes with dashboard layout */}
@@ -71,6 +73,16 @@ function App() {
               <ProtectedRoute>
                 <DashboardLayout>
                   <Transactions />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Settings />
                 </DashboardLayout>
               </ProtectedRoute>
             }

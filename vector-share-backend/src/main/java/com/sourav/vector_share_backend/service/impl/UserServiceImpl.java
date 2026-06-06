@@ -36,8 +36,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public UserResponseDto getUser(UserRequestDto userRequestDto){
-		String email = userRequestDto.getEmail();
+	public UserResponseDto getUser(String email){
 		User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Email id is not registered!"));
 		return modelMapper.map(user, UserResponseDto.class);
 		

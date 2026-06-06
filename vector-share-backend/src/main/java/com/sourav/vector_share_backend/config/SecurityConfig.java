@@ -54,7 +54,6 @@ public class SecurityConfig {
 		 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 		 .authorizeHttpRequests(auth -> auth
 				 .requestMatchers("/auth/**").permitAll()
-				 .requestMatchers("/user/create").permitAll()
 				 .requestMatchers("/files/share/**").permitAll()
 				 .anyRequest().authenticated()
 		)

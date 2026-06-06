@@ -78,38 +78,71 @@ export const testimonials = [
 export const features = [
   {
     title: "Easy File Upload",
-    description: "Quickly upload your files with our intuitive drag-and-drop interface.",
+    description: "Quickly upload your files with our intuitive drag-and-drop interface. Supports all file types up to 50MB.",
     icon: "ArrowUpCircle",
-    color: "text-blue-500"
+    gradient: "from-blue-500 to-cyan-400",
+    bgGlow: "bg-blue-500/10"
   },
   {
     title: "Secure Storage",
-    description: "Your files are encrypted and stored securely in our cloud infrastructure.",
+    description: "Your files are encrypted and stored securely in our cloud infrastructure with enterprise-grade protocols.",
     icon: "Shield",
-    color: "text-green-500"
+    gradient: "from-emerald-500 to-teal-400",
+    bgGlow: "bg-emerald-500/10"
   },
   {
     title: "Simple Sharing",
-    description: "Share files with anyone using secure links that you control.",
+    description: "Share files with anyone using secure links that you control. Toggle between public and private anytime.",
     icon: "Share2",
-    color: "text-purple-500"
+    gradient: "from-purple-500 to-violet-400",
+    bgGlow: "bg-purple-500/10"
   },
   {
-    title: "Flexible Credits",
-    description: "Pay only for what you use with our credit-based system.",
-    icon: "CreditCard",
-    color: "text-yellow-500"
+    title: "Google OAuth",
+    description: "Sign in seamlessly with your Google account. No passwords to remember, instant access.",
+    icon: "Globe",
+    gradient: "from-amber-500 to-orange-400",
+    bgGlow: "bg-amber-500/10"
   },
   {
     title: "File Management",
-    description: "Organize, preview, and manage your files from any device.",
+    description: "Organize, preview, and manage your files from any device with our responsive dashboard.",
     icon: "FileText",
-    color: "text-indigo-500"
+    gradient: "from-indigo-500 to-blue-400",
+    bgGlow: "bg-indigo-500/10"
   },
   {
-    title: "Transaction History",
-    description: "Keep track of all your credit purchases and usage.",
-    icon: "Clock",
-    color: "text-red-500"
+    title: "Link Controls",
+    description: "Regenerate share links, toggle visibility, and maintain full control over your shared content.",
+    icon: "Link",
+    gradient: "from-pink-500 to-rose-400",
+    bgGlow: "bg-pink-500/10"
   }
+];
+
+export const footerLinks = {
+  product: [
+    { label: "Features", href: "#features" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "Security", href: "#" },
+    { label: "Changelog", href: "#" },
+  ],
+  company: [
+    { label: "About", href: "#" },
+    { label: "Blog", href: "#" },
+    { label: "Careers", href: "#" },
+    { label: "Contact", href: "#" },
+  ],
+  legal: [
+    { label: "Privacy Policy", href: "#" },
+    { label: "Terms of Service", href: "#" },
+    { label: "Cookie Policy", href: "#" },
+  ],
+};
+
+export const stats = [
+  { value: "10K+", label: "Active Users" },
+  { value: "1M+", label: "Files Shared" },
+  { value: "99.9%", label: "Uptime" },
+  { value: "256-bit", label: "Encryption" },
 ];

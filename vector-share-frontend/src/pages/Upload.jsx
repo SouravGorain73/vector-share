@@ -1,10 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import fileService from '../services/fileService';
+import FileIcon from '../components/FileIcon';
 import toast from 'react-hot-toast';
 import {
   Upload as UploadIcon,
   CloudUpload,
-  FileText,
   Globe,
   Lock,
   Check,
@@ -16,6 +16,7 @@ function Upload() {
   const [file, setFile] = useState(null);
   const [visibility, setVisibility] = useState('PUBLIC');
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -55,11 +56,28 @@ function Upload() {
     }
 
     setUploading(true);
+    setUploadProgress(0);
+
+    // Simulate progress since axios doesn't give us real progress easily with interceptors
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return prev + Math.random() * 15;
+      });
+    }, 200);
+
     try {
       const result = await fileService.uploadFile(file, visibility);
+      clearInterval(progressInterval);
+      setUploadProgress(100);
       setUploadResult(result);
       toast.success('File uploaded successfully!');
     } catch (err) {
+      clearInterval(progressInterval);
+      setUploadProgress(0);
       const msg = err.response?.data?.message || 'Upload failed';
       toast.error(msg);
     } finally {
@@ -79,9 +97,14 @@ function Upload() {
   const resetUpload = () => {
     setFile(null);
     setUploadResult(null);
+    setUploadProgress(0);
     setCopied(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  // Image preview
+  const isImage = file?.type?.startsWith('image/');
+  const previewUrl = isImage ? URL.createObjectURL(file) : null;
 
   return (
     <div className="page-enter max-w-2xl mx-auto">
@@ -119,10 +142,14 @@ function Upload() {
             />
 
             {file ? (
-              <div className="space-y-3">
-                <div className="w-16 h-16 mx-auto rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                  <FileText size={30} className="text-emerald-400" />
-                </div>
+              <div className="space-y-4">
+                {isImage && previewUrl ? (
+                  <div className="w-24 h-24 mx-auto rounded-xl overflow-hidden border border-gray-700/50">
+                    <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <FileIcon filename={file.name} size={30} className="w-16 h-16 mx-auto" />
+                )}
                 <div>
                   <p className="text-white font-semibold text-lg">{file.name}</p>
                   <p className="text-gray-400 text-sm mt-1">{fileService.formatFileSize(file.size)}</p>
@@ -143,6 +170,7 @@ function Upload() {
                 <div>
                   <p className="text-white font-semibold text-lg">Drop your file here</p>
                   <p className="text-gray-500 text-sm mt-1">or click to browse from your computer</p>
+                  <p className="text-gray-600 text-xs mt-2">Max file size: 50MB</p>
                 </div>
               </div>
             )}
@@ -183,6 +211,22 @@ function Upload() {
             </div>
           </div>
 
+          {/* Progress Bar */}
+          {uploading && (
+            <div className="mt-6">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-400">Uploading...</span>
+                <span className="text-purple-400 font-medium">{Math.round(uploadProgress)}%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-800/60 rounded-full overflow-hidden">
+                <div
+                  className="progress-bar h-full"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Upload Button */}
           <button
             id="upload-submit"
@@ -205,7 +249,7 @@ function Upload() {
         </div>
       ) : (
         /* Success state */
-        <div className="glass-card p-8 animate-fade-in-up">
+        <div className="glass-card p-8 animate-scale-in">
           <div className="text-center space-y-4">
             <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/15 flex items-center justify-center animate-pulse-glow">
               <Check size={36} className="text-emerald-400" />
@@ -217,9 +261,12 @@ function Upload() {
           </div>
 
           <div className="mt-8 space-y-4">
-            <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">
-              <p className="text-xs text-gray-500 mb-1">File name</p>
-              <p className="text-white font-medium">{uploadResult.originalFileName}</p>
+            <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/30 flex items-center gap-4">
+              <FileIcon filename={uploadResult.originalFileName} size={20} className="w-12 h-12 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-500 mb-0.5">File name</p>
+                <p className="text-white font-medium truncate">{uploadResult.originalFileName}</p>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">

@@ -1,5 +1,4 @@
-import React from 'react';
-import { Receipt, FileText, ArrowUpDown } from 'lucide-react';
+import { Receipt, ArrowUpDown } from 'lucide-react';
 
 function Transactions() {
   return (

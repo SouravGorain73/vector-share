@@ -10,6 +10,6 @@ public interface UserService {
 	
 	public UserResponseDto createUser(UserRequestDto userRequestDto);
 	
-	public UserResponseDto getUser(UserRequestDto userRequestDto);
+	public UserResponseDto getUser(String email);
 
 }

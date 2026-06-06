@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Share2, ArrowRight } from 'lucide-react';
+import GoogleButton from '../components/GoogleButton';
+import authService from '../services/authService';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -11,10 +13,13 @@ function Login() {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  if (isAuthenticated) {
-    navigate('/dashboard', { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated) { return null; }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,12 +31,16 @@ function Login() {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = authService.getGoogleOAuthUrl();
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-orb"></div>
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] animate-orb-2"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[150px]"></div>
       </div>
 
@@ -47,6 +56,11 @@ function Login() {
 
         {/* Form card */}
         <div className="glass-card p-8">
+          {/* Google OAuth */}
+          <GoogleButton label="Sign in with Google" onClick={handleGoogleLogin} />
+
+          <div className="auth-divider my-6">or continue with email</div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>

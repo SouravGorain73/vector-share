@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import authService from '../services/authService';
 import {
   LayoutDashboard,
   Upload,
@@ -12,6 +13,9 @@ import {
   X,
   Share2,
   ChevronRight,
+  Settings,
+  Globe,
+  KeyRound,
 } from 'lucide-react';
 
 const navItems = [
@@ -20,6 +24,7 @@ const navItems = [
   { path: '/myfiles', label: 'My Files', icon: FolderOpen },
   { path: '/subscription', label: 'Subscription', icon: CreditCard },
   { path: '/transactions', label: 'Transactions', icon: Receipt },
+  { path: '/settings', label: 'Settings', icon: Settings },
 ];
 
 function DashboardLayout({ children }) {
@@ -27,13 +32,15 @@ function DashboardLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const isOAuthUser = !authService.getRefreshToken();
+
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex">
+    <div className="h-screen bg-gray-950 flex overflow-hidden">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -75,11 +82,11 @@ function DashboardLayout({ children }) {
                 to={path}
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive }) =>
-                  `group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
+                  `group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 outline-none focus:outline-none
                   ${
                     isActive
                       ? 'bg-gradient-to-r from-purple-500/15 to-indigo-500/10 text-purple-400 border border-purple-500/20 shadow-lg shadow-purple-500/5'
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 border border-transparent'
                   }`
                 }
               >
@@ -101,7 +108,14 @@ function DashboardLayout({ children }) {
                 {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-200 truncate">{user?.name || 'User'}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-semibold text-gray-200 truncate">{user?.name || 'User'}</p>
+                  {isOAuthUser ? (
+                    <Globe size={12} className="text-blue-400 shrink-0" title="Google Account" />
+                  ) : (
+                    <KeyRound size={12} className="text-emerald-400 shrink-0" title="Email Account" />
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
               </div>
               <button
@@ -117,7 +131,7 @@ function DashboardLayout({ children }) {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur-xl border-b border-gray-800/50">
           <div className="flex items-center justify-between px-6 py-4">

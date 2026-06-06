@@ -22,7 +22,10 @@
     background: rgba(139, 92, 246, 0.5);
 }
 
-/* Animations */
+/* ============================================
+   KEYFRAME ANIMATIONS
+   ============================================ */
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -70,6 +73,65 @@
     50% { border-color: rgba(139, 92, 246, 0.6); }
 }
 
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -20px) scale(1.05); }
+    50% { transform: translate(-10px, 20px) scale(0.95); }
+    75% { transform: translate(-30px, -10px) scale(1.02); }
+}
+
+@keyframes orbFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-20px, 30px) scale(1.08); }
+    66% { transform: translate(25px, -15px) scale(0.96); }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes progressFill {
+    from { width: 0%; }
+}
+
+@keyframes checkmark {
+    0% { stroke-dashoffset: 30; }
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   ANIMATION UTILITY CLASSES
+   ============================================ */
+
 .animate-fade-in-up {
     animation: fadeInUp 0.5s ease-out forwards;
 }
@@ -100,6 +162,31 @@
     animation: borderGlow 2s ease-in-out infinite;
 }
 
+.animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-slide-down {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+.animate-gradient {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+}
+
+.animate-orb {
+    animation: orbFloat 20s ease-in-out infinite;
+}
+
+.animate-orb-2 {
+    animation: orbFloat2 25s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+    animation: spin-slow 20s linear infinite;
+}
+
 /* Staggered animation delays */
 .stagger-1 { animation-delay: 0.1s; opacity: 0; }
 .stagger-2 { animation-delay: 0.2s; opacity: 0; }
@@ -107,8 +194,13 @@
 .stagger-4 { animation-delay: 0.4s; opacity: 0; }
 .stagger-5 { animation-delay: 0.5s; opacity: 0; }
 .stagger-6 { animation-delay: 0.6s; opacity: 0; }
+.stagger-7 { animation-delay: 0.7s; opacity: 0; }
+.stagger-8 { animation-delay: 0.8s; opacity: 0; }
 
-/* Glassmorphism card */
+/* ============================================
+   GLASSMORPHISM CARDS
+   ============================================ */
+
 .glass-card {
     background: rgba(17, 17, 27, 0.6);
     backdrop-filter: blur(20px);
@@ -123,13 +215,29 @@
     border-radius: 16px;
 }
 
-/* Upload dropzone styles */
+.glass-card-hover {
+    background: rgba(17, 17, 27, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   UPLOAD & FILE STYLES
+   ============================================ */
+
 .dropzone-active {
     border-color: rgba(139, 92, 246, 0.6) !important;
     background: rgba(139, 92, 246, 0.05) !important;
 }
 
-/* File grid transitions */
 .file-card {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -138,12 +246,18 @@
     box-shadow: 0 8px 30px rgba(139, 92, 246, 0.12);
 }
 
-/* Input focus ring */
+/* ============================================
+   FORM STYLES
+   ============================================ */
+
 input:focus, select:focus, textarea:focus {
     outline: none;
 }
 
-/* Gradient text */
+/* ============================================
+   GRADIENT TEXT
+   ============================================ */
+
 .gradient-text {
     background: linear-gradient(135deg, #a855f7, #6366f1, #8b5cf6);
     -webkit-background-clip: text;
@@ -151,7 +265,161 @@ input:focus, select:focus, textarea:focus {
     background-clip: text;
 }
 
-/* Smooth page transitions */
+.gradient-text-hero {
+    background: linear-gradient(135deg, #c084fc, #818cf8, #a78bfa, #e879f9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gradient-text-warm {
+    background: linear-gradient(135deg, #f472b6, #a855f7, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   PAGE TRANSITIONS
+   ============================================ */
+
 .page-enter {
     animation: fadeInUp 0.4s ease-out;
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+
+.progress-bar {
+    background: linear-gradient(90deg, #a855f7, #6366f1, #8b5cf6);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+    animation: progressFill 0.6s ease-out;
+}
+
+/* ============================================
+   BULK SELECTION
+   ============================================ */
+
+.file-card-selected {
+    border-color: rgba(139, 92, 246, 0.5) !important;
+    background: rgba(139, 92, 246, 0.08) !important;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+/* ============================================
+   LANDING PAGE SPECIFIC
+   ============================================ */
+
+.landing-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.landing-gradient-bg {
+    background: linear-gradient(180deg, #0a0a1a 0%, #0f0f2e 30%, #0a0a1a 100%);
+}
+
+.feature-card-landing {
+    background: rgba(17, 17, 27, 0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card-landing:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 12px 40px rgba(139, 92, 246, 0.12);
+    transform: translateY(-4px);
+}
+
+/* Pricing card glow for popular plan */
+.pricing-popular {
+    position: relative;
+}
+
+.pricing-popular::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 21px;
+    padding: 1px;
+    background: linear-gradient(135deg, #a855f7, #6366f1, #ec4899, #a855f7);
+    background-size: 300% 300%;
+    animation: gradientShift 4s ease infinite;
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: 0;
+}
+
+/* Orb decorations */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+}
+
+/* Google button */
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.google-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Divider */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Password strength bar */
+.strength-bar {
+    height: 4px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Navbar blur */
+.navbar-blur {
+    background: rgba(10, 10, 26, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.1);
 }

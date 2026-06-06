@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
+		System.out.println("Request URI:" + request.getRequestURI());
+		
 		final String authHeader = request.getHeader("Authorization");
 		
 		final String jwtToken;
@@ -37,19 +41,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		
 		jwtToken = authHeader.substring(7);
 		
-		username = jwtService.extractUsername(jwtToken);
-		
-		//Authenticate if Not Already
-		if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		try {
+			username = jwtService.extractUsername(jwtToken);
 			
-			//validate the token
-			if(jwtService.isTokenValid(jwtToken, userDetails)) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+			//Authenticate if Not Already
+			if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 				
-				SecurityContextHolder.getContext().setAuthentication(authToken);
+				//validate the token
+				if(jwtService.isTokenValid(jwtToken, userDetails)) {
+					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+					
+					SecurityContextHolder.getContext().setAuthentication(authToken);
+				}
+				
 			}
-			
+		}
+		catch(ExpiredJwtException e) {
+			System.out.println("JWT expired");
+			filterChain.doFilter(request, response);
+			return;
 		}
 		
 		filterChain.doFilter(request, response);

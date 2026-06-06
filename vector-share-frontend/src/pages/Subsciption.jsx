@@ -1,4 +1,3 @@
-import React from 'react';
 import { pricingPlans } from '../assets/data';
 import { Check, CreditCard, Sparkles } from 'lucide-react';
 

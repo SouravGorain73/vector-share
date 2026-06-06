@@ -1,7 +1,25 @@
-import React, { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Share2, ArrowRight, User } from 'lucide-react';
+import GoogleButton from '../components/GoogleButton';
+import authService from '../services/authService';
+
+function getPasswordStrength(password) {
+  if (!password) return { score: 0, label: '', color: '' };
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 1) return { score: 1, label: 'Weak', color: 'bg-red-500' };
+  if (score <= 2) return { score: 2, label: 'Fair', color: 'bg-amber-500' };
+  if (score <= 3) return { score: 3, label: 'Good', color: 'bg-yellow-400' };
+  if (score <= 4) return { score: 4, label: 'Strong', color: 'bg-emerald-400' };
+  return { score: 5, label: 'Very Strong', color: 'bg-emerald-400' };
+}
 
 function Register() {
   const [name, setName] = useState('');
@@ -14,10 +32,15 @@ function Register() {
   const { register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  if (isAuthenticated) {
-    navigate('/dashboard', { replace: true });
-    return null;
-  }
+  const strength = useMemo(() => getPasswordStrength(password), [password]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated) { return null; }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,19 +59,23 @@ function Register() {
     }
   };
 
+  const handleGoogleSignUp = () => {
+    window.location.href = authService.getGoogleOAuthUrl();
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[150px]"></div>
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-orb"></div>
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] animate-orb-2"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-purple-500/5 rounded-full blur-[150px]"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10 animate-fade-in-up py-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/25 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/25 mb-4">
             <Share2 size={28} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white">Create account</h1>
@@ -57,6 +84,11 @@ function Register() {
 
         {/* Form card */}
         <div className="glass-card p-8">
+          {/* Google OAuth */}
+          <GoogleButton label="Sign up with Google" onClick={handleGoogleSignUp} />
+
+          <div className="auth-divider my-6">or create with email</div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Error message */}
             {error && (
@@ -122,6 +154,29 @@ function Register() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {/* Password strength bar */}
+              {password && (
+                <div className="mt-2.5">
+                  <div className="flex gap-1.5 mb-1.5">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                          i <= strength.score ? strength.color : 'bg-gray-700'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className={`text-xs ${
+                    strength.score <= 1 ? 'text-red-400' :
+                    strength.score <= 2 ? 'text-amber-400' :
+                    strength.score <= 3 ? 'text-yellow-400' :
+                    'text-emerald-400'
+                  }`}>
+                    {strength.label}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -137,9 +192,18 @@ function Register() {
                   placeholder="Repeat your password"
                   required
                   minLength={6}
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                  className={`w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 ${
+                    confirmPassword && confirmPassword !== password
+                      ? 'border-red-500/50 focus:border-red-500/50'
+                      : confirmPassword && confirmPassword === password
+                        ? 'border-emerald-500/50 focus:border-emerald-500/50'
+                        : 'border-gray-700/50 focus:border-purple-500/50'
+                  }`}
                 />
               </div>
+              {confirmPassword && confirmPassword !== password && (
+                <p className="text-xs text-red-400 mt-1.5">Passwords don't match</p>
+              )}
             </div>
 
             {/* Submit */}
@@ -147,7 +211,7 @@ function Register() {
               id="register-submit"
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
