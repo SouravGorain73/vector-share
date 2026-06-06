@@ -62,7 +62,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		
 		response.addHeader("Set-Cookie", cookie.toString());
 		
-		getRedirectStrategy().sendRedirect(request, response, "http://localhost:5173/api/v1/oauth-success?token=" + accessToken);
+		getRedirectStrategy().sendRedirect(request, response, "http://localhost:5173/oauth-success?token=" + accessToken);
 	}
 
 	
