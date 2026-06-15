@@ -44,8 +44,10 @@ public class FileController {
 	@GetMapping("/share/{token}")
 	public ResponseEntity<Resource> getSharedFile(@PathVariable String token){
 		
-		FileDownloadDto file = fileService.getSharedFile(token);
+		System.out.println("File Share using Token is called");	
 		
+		FileDownloadDto file = fileService.getSharedFile(token);
+			
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION,
 				"inline; filename=\""

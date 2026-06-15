@@ -26,7 +26,15 @@ public class LocalStorageService implements StorageService{
 		
 		try {
 			
-			Path path = Paths.get(UPLOAD_DIR, fileName);
+//			Path path = Paths.get(UPLOAD_DIR, fileName);
+			Path uploadDir = Paths.get(UPLOAD_DIR);
+
+	        // Create uploads folder if it doesn't exist
+	        if (!Files.exists(uploadDir)) {
+	            Files.createDirectories(uploadDir);
+	        }
+
+	        Path path = uploadDir.resolve(fileName);
 			
 //			Files.copy(file.getInputStream(), path);	//Directly saving the file
 			
@@ -52,6 +60,10 @@ public class LocalStorageService implements StorageService{
 	public Resource loadFile(String path) {
 		try {
 			Path filePath = Paths.get(path);
+			
+			System.out.println("Stored path: " + path);
+			System.out.println("Exists: " + Files.exists(filePath));
+			System.out.println("Absolute: " + filePath.toAbsolutePath());
 			
 //			Resource resource = new UrlResource(filePath.toUri());	//Loading the file which is stored directly not encrypted
 			
