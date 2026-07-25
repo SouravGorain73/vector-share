@@ -19,6 +19,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +28,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 	private final UserRepository userRepository;
 	private final JwtService jwtService;
 	private final RefreshTokenService refreshTokenService;
+	
+	@Value("${app.base-url}") 
+	private String frontendUrl;
 	
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -62,7 +66,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 		
 		response.addHeader("Set-Cookie", cookie.toString());
 		
-		getRedirectStrategy().sendRedirect(request, response, "http://localhost:5173/oauth-success?token=" + accessToken);
+		getRedirectStrategy().sendRedirect(
+			request, 
+			response, 
+			frontendUrl + "/oauth-success?token=" + accessToken
+		);
 	}
 
 	

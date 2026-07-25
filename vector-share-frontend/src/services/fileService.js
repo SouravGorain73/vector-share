@@ -1,6 +1,6 @@
 import api from './api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const fileService = {
   async uploadFile(file, visibility) {
@@ -36,11 +36,10 @@ export const fileService = {
     return response.data;
   },
 
-  /**
+  /*
    * Convert backend API share link to frontend-friendly share link.
-   * Backend returns: http://localhost:8080/api/v1/files/share/{token}
-   * Frontend needs:  http://localhost:5173/share/{token}
    */
+
   getFrontendShareUrl(backendShareLink) {
     if (!backendShareLink) return '';
     // Extract the token from the backend URL
