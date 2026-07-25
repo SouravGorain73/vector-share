@@ -13,7 +13,6 @@ import com.sourav.vector_share_backend.dto.request.ResetPasswordRequestDto;
 import com.sourav.vector_share_backend.dto.request.UserRequestDto;
 import com.sourav.vector_share_backend.dto.response.AuthResponseDto;
 import com.sourav.vector_share_backend.dto.response.RefreshTokenResponseDto;
-import com.sourav.vector_share_backend.dto.response.UserResponseDto;
 import com.sourav.vector_share_backend.model.EmailVerification;
 import com.sourav.vector_share_backend.model.RefreshToken;
 import com.sourav.vector_share_backend.model.User;
@@ -35,7 +34,7 @@ public class AuthService {
 	private final UserService userService;
 	
 	@Transactional
-	public UserResponseDto register(UserRequestDto userRequestDto) {
+	public AuthResponseDto register(UserRequestDto userRequestDto) {
 		
 		EmailVerification verification = emailVerificationRepository.findByEmail(userRequestDto.getEmail())
 				.orElseThrow(() -> new RuntimeException("Email not verified!"));
@@ -44,11 +43,11 @@ public class AuthService {
 			throw new RuntimeException("Email not verified!");
 		}
 		
-		UserResponseDto response = userService.createUser(userRequestDto);
+		User user = userService.createUser(userRequestDto);
 		
 		emailVerificationRepository.delete(verification);
 		
-		return response;
+		return createAuthResponse(user);
 	}
 	
 	public AuthResponseDto login(AuthRequestDto loginRequest) {
@@ -59,13 +58,9 @@ public class AuthService {
 		
 		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
 		
-		String accessToken = jwtService.generateToken(userDetails);
-		
 		User user = userDetails.getUser();
 		
-		RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-		
-		return new AuthResponseDto(accessToken, refreshToken.getRefreshToken());
+		return createAuthResponse(user);
 	}
 	
 	public RefreshTokenResponseDto refreshToken(RefreshTokenRequestDto request) {
@@ -112,5 +107,20 @@ public class AuthService {
 		}
 		
 		otpService.sendOtp(email);
+	}
+	
+	private AuthResponseDto createAuthResponse(User user) {
+
+	    CustomUserDetails userDetails = new CustomUserDetails(user);
+
+	    String accessToken = jwtService.generateToken(userDetails);
+
+	    RefreshToken refreshToken =
+	            refreshTokenService.createRefreshToken(user);
+
+	    return new AuthResponseDto(
+	            accessToken,
+	            refreshToken.getRefreshToken()
+	    );
 	}
 }

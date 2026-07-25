@@ -15,7 +15,6 @@ import com.sourav.vector_share_backend.dto.request.UserRequestDto;
 import com.sourav.vector_share_backend.dto.request.VerifyOtpRequestDto;
 import com.sourav.vector_share_backend.dto.response.AuthResponseDto;
 import com.sourav.vector_share_backend.dto.response.RefreshTokenResponseDto;
-import com.sourav.vector_share_backend.dto.response.UserResponseDto;
 import com.sourav.vector_share_backend.security.AuthService;
 import com.sourav.vector_share_backend.service.OtpService;
 import jakarta.validation.Valid;
@@ -47,9 +46,9 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<UserResponseDto> register(@RequestBody @Valid UserRequestDto userRequestDto){
-		UserResponseDto user = authService.register(userRequestDto);
-		return new ResponseEntity<UserResponseDto>(user, HttpStatus.CREATED);
+	public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid UserRequestDto userRequestDto){
+		AuthResponseDto user = authService.register(userRequestDto);
+		return new ResponseEntity<AuthResponseDto>(user, HttpStatus.CREATED);
 	}
 	
 	@PostMapping("/login")

@@ -5,11 +5,12 @@ import org.springframework.stereotype.Service;
 import com.sourav.vector_share_backend.dto.request.ResetPasswordRequestDto;
 import com.sourav.vector_share_backend.dto.request.UserRequestDto;
 import com.sourav.vector_share_backend.dto.response.UserResponseDto;
+import com.sourav.vector_share_backend.model.User;
 
 @Service
 public interface UserService {
 	
-	public UserResponseDto createUser(UserRequestDto userRequestDto);
+	public User createUser(UserRequestDto userRequestDto);
 	
 	public UserResponseDto getUser(String email);
 

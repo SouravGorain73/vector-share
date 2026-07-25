@@ -35,8 +35,6 @@ public class OtpServiceImpl implements OtpService{
 		verification.setAttempts(0);
 		verification.setLastOtpSentAt(LocalDateTime.now());
 		
-
-		
 		emailVerificationRepository.save(verification);
 		
 		emailService.sendEmail(

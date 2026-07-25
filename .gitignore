@@ -4,3 +4,5 @@
 vector-share-backend/uploads/
 
 vector-share-backend/src/main/resources/application.properties
+vector-share-backend/src/main/resources/application-local.properties
+vector-share-backend/src/main/resources/application-prod.properties

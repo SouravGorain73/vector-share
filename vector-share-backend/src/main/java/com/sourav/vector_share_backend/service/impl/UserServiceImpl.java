@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService{
 	private final PasswordEncoder passwordEncoder;
 	
 	@Override
-	public UserResponseDto createUser(UserRequestDto userDto) {
+	public User createUser(UserRequestDto userDto) {
 		if(existsByEmail(userDto.getEmail())) {
 			throw new RuntimeException("Email already registered!");
 		}
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService{
 				.build();
 		newUser = userRepository.save(newUser);
 		
-		return modelMapper.map(newUser, UserResponseDto.class);
+		return newUser;
 	}
 
 	@Override
