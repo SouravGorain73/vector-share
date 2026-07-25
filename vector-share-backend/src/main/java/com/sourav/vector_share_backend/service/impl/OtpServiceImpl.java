@@ -37,11 +37,7 @@ public class OtpServiceImpl implements OtpService{
 		
 		emailVerificationRepository.save(verification);
 		
-		emailService.sendEmail(
-				email,
-				"Verify Your Email - Vector Share",
-				"Your OTP is: " + otp + "\nValid for 5 minutes."
-		);
+		emailService.sendOtpEmail(email, otp);
 	}
 
 	@Override

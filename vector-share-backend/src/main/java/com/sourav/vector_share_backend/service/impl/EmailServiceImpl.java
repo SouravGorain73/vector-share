@@ -1,11 +1,18 @@
 package com.sourav.vector_share_backend.service.impl;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.sourav.vector_share_backend.service.EmailService;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailServiceImpl implements EmailService{
@@ -22,17 +29,44 @@ public class EmailServiceImpl implements EmailService{
 	 }
 
 	@Override
-	public void sendEmail(String to, String subject, String body) {
+	public void sendOtpEmail(String to, String otp){
 		
-		SimpleMailMessage message = new SimpleMailMessage();
+		try {
+			MimeMessage message = mailSender.createMimeMessage();
+			
+			MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
+			
+			String html = loadTemplate("otp-email.html");
+			html = html.replace("{{OTP}}", otp);
+			
+			helper.setTo(to);
+			helper.setFrom(sender);
+			helper.setSubject("Verify your email address • Vector Share");
+			helper.setText(html, true);
+			
+			//Attach the logo
+			helper.addInline("logo", new ClassPathResource("static/images/logo.png"));
+			
+			mailSender.send(message);
+		}
+		catch(MessagingException e) {
+			throw new RuntimeException("Failed to send OTP email", e);
+		}
 		
-		message.setTo(to);
-		message.setFrom(sender);
-		message.setSubject(subject);
-		message.setText(body);
+	}
+	
+	private String loadTemplate(String filename) {
 		
-		mailSender.send(message);
-		
+		try {
+			ClassPathResource resource = new ClassPathResource("templates/" + filename);
+			
+			return new String(
+					resource.getInputStream().readAllBytes(),
+					StandardCharsets.UTF_8);
+		}
+		catch(IOException e) {
+			throw new RuntimeException("Unable to load email template", e);
+		}
 	}
 
 }
