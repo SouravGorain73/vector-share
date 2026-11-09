@@ -32,6 +32,8 @@ public class AuthController {
 	@PostMapping("/send-otp")
 	public ResponseEntity<String> sendOtp(@RequestBody @Valid SendOtpRequestDto request){
 		
+		System.out.println("Email id: " + request.getEmail());
+		
 		otpService.sendOtp(request.getEmail());
 		
 		return ResponseEntity.status(HttpStatus.OK).body("OTP sent successfully");
@@ -47,12 +49,15 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<AuthResponseDto> register(@RequestBody @Valid UserRequestDto userRequestDto){
+		System.out.println("Register Called");
 		AuthResponseDto user = authService.register(userRequestDto);
 		return new ResponseEntity<AuthResponseDto>(user, HttpStatus.CREATED);
 	}
 	
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid AuthRequestDto request){
+		
+		System.out.println("Login Called");
 		
 		return ResponseEntity.ok(authService.login(request));
 	

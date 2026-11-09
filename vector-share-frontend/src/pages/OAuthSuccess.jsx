@@ -25,8 +25,8 @@ function OAuthSuccess() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   if (error) {
+  console.log(error)
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center animate-fade-in-up">
@@ -37,7 +37,7 @@ function OAuthSuccess() {
           <p className="text-gray-400 mb-8">{error}</p>
           <button
             onClick={() => navigate('/login')}
-            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
+            className="px-6 py-3 bg-linear-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
           >
             Back to Login
           </button>
