@@ -1,34 +1,30 @@
 package com.sourav.vector_share_backend.controller;
 
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Properties;
+import com.sourav.vector_share_backend.service.EmailService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequestMapping("/test")
+@RequiredArgsConstructor
 public class MailTestController {
 
-    @GetMapping("/test-mail")
-    public String testMail() {
-        try {
-            JavaMailSenderImpl sender = new JavaMailSenderImpl();
-            sender.setHost("smtp.gmail.com");
-            sender.setPort(587);
-            sender.setUsername(System.getenv("MAIL_USERNAME"));
-            sender.setPassword(System.getenv("MAIL_PASSWORD"));
-
-            Properties props = sender.getJavaMailProperties();
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.connectiontimeout", "10000");
-            props.put("mail.smtp.timeout", "10000");
-            props.put("mail.smtp.writetimeout", "10000");
-
-            sender.testConnection();
-            return "SMTP connected successfully";
-        } catch (Exception e) {
-            return e.getClass().getName() + ": " + e.getMessage();
-        }
+	private final EmailService emailService;
+	
+    @GetMapping("/send-mail")
+    public String testMail(@RequestParam String email) {
+        
+    	try {
+    		emailService.sendOtpEmail(email, "123456");
+        	return "OTP send successfully.";
+    	}
+    	catch (Exception e) {
+			return "Failed: " + e.getMessage();
+		}
     }
 }
