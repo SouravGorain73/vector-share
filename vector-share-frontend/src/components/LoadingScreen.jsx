@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 export default function LoadingScreen({ onComplete }) {
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#111827]"
-      initial={{ opacity: 1, y: 0 }}
-      animate={{ opacity: 0, y: '-100%' }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-app)]"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0 }}
+      transition={{ duration: 0.25, ease: 'easeInOut', delay: 0.15 }}
       onAnimationComplete={onComplete}
     >
       <div className="flex flex-col items-center">
@@ -20,7 +20,7 @@ export default function LoadingScreen({ onComplete }) {
           >
             <motion.path
               d="M 20 25 L 50 82 L 80 25"
-              stroke="#D7FF64"
+              stroke="var(--accent)"
               strokeWidth="3.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -34,15 +34,15 @@ export default function LoadingScreen({ onComplete }) {
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.1 }}
-          className="mt-5 font-display font-bold text-sm tracking-[0.2em] text-[#F5F3EB] uppercase"
+          className="mt-5 font-display font-bold text-sm tracking-[0.2em] text-[var(--text-primary)] uppercase"
         >
-          Vector<span className="text-[#D7FF64]">Share</span>
+          Vector<span className="text-[var(--accent)]">Share</span>
         </motion.div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.2, delay: 0.12 }}
-          className="mt-2 text-xs font-medium text-[#94A3B8]"
+          className="mt-2 text-xs font-medium text-[var(--text-secondary)]"
         >
           Loading VectorShare...
         </motion.div>

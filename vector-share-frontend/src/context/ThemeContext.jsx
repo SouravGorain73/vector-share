@@ -47,6 +47,11 @@ export function ThemeProvider({ children }) {
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
     root.style.colorScheme = theme;
+
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', theme === 'dark' ? '#0B1120' : '#F0F4F8');
+    }
   }, [theme, isUserPreference]);
 
   // Listen for OS theme changes if user hasn't explicitly set a preference

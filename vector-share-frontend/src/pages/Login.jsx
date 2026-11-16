@@ -37,41 +37,41 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex items-center justify-center px-4 py-12 relative overflow-hidden bg-grid-technical font-sans">
+    <div className="min-h-screen md:h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex items-center justify-center p-3 sm:p-4 relative overflow-y-auto md:overflow-hidden bg-grid-technical font-sans">
       {/* Top Header / Mode Switcher */}
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+      <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20">
         <ThemeToggle />
       </div>
 
-      <div className="w-full max-w-md relative z-10 animate-fade-in-up">
+      <div className="w-full max-w-sm sm:max-w-md relative z-10 animate-fade-in-up py-2">
         
         {/* Brand Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-3 sm:mb-4">
           <Link
             to="/"
-            className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] text-[var(--accent)] mb-4 hover:border-[var(--accent)] transition-colors shadow-sm"
+            className="inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] text-[var(--accent)] mb-2 hover:border-[var(--accent)] transition-colors shadow-sm"
           >
-            <Share2 size={22} />
+            <Share2 size={20} />
           </Link>
-          <h1 className="font-display font-bold text-3xl text-[var(--text-primary)] tracking-tight">
+          <h1 className="font-display font-bold text-2xl sm:text-3xl text-[var(--text-primary)] tracking-tight">
             Log In to VectorShare
           </h1>
-          <p className="mt-2 text-sm text-[var(--text-secondary)]">
+          <p className="mt-1 text-xs sm:text-sm text-[var(--text-secondary)]">
             Enter your email and password to access your files
           </p>
         </div>
 
         {/* Auth Form Card */}
-        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-8 shadow-xl">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-5 sm:p-6 shadow-xl">
           {/* Google OAuth */}
           <GoogleButton label="Sign in with Google" onClick={handleGoogleLogin} />
 
-          <div className="auth-divider my-6">or sign in with email</div>
+          <div className="auth-divider my-3.5 sm:my-4 text-xs">or sign in with email</div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5">
             {/* Email */}
             <div>
-              <label htmlFor="login-email" className="block text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-2">
+              <label htmlFor="login-email" className="block text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-1 sm:mb-1.5">
                 Email address
               </label>
               <div className="relative">
@@ -83,14 +83,14 @@ function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
+                  className="w-full pl-10 pr-4 py-2 sm:py-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-1 sm:mb-1.5">
                 <label htmlFor="login-password" className="block text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)]">
                   Password
                 </label>
@@ -108,7 +108,7 @@ function Login() {
                   placeholder="Enter your password"
                   required
                   minLength={6}
-                  className="w-full pl-10 pr-11 py-3 bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
+                  className="w-full pl-10 pr-11 py-2 sm:py-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                 />
                 <button
                   type="button"
@@ -126,7 +126,7 @@ function Login() {
               id="login-submit"
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 px-6 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-contrast)] font-medium text-sm rounded-lg transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-6"
+              className="w-full py-2.5 sm:py-3 px-6 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-contrast)] font-medium text-sm rounded-lg transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-3 sm:mt-4"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -140,8 +140,8 @@ function Login() {
           </form>
 
           {/* Registration link */}
-          <div className="mt-6 pt-5 border-t border-[var(--border-color)] text-center">
-            <p className="text-sm text-[var(--text-secondary)]">
+          <div className="mt-4 pt-3 sm:mt-4 sm:pt-3.5 border-t border-[var(--border-color)] text-center">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
               Don't have an account?{' '}
               <Link to="/register" className="text-[var(--accent)] font-semibold hover:underline">
                 Sign up free
@@ -151,8 +151,8 @@ function Login() {
         </div>
 
         {/* Back Link */}
-        <div className="mt-6 text-center">
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+        <div className="mt-2.5 sm:mt-3 text-center">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             ← Back to home
           </Link>
         </div>

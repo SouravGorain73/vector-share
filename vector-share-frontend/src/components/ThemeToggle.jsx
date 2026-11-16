@@ -24,9 +24,9 @@ export default function ThemeToggle({ className = '' }) {
           className="flex items-center justify-center"
         >
           {isDark ? (
-            <Sun size={18} strokeWidth={1.75} className="text-[#D7FF64]" />
+            <Sun size={18} strokeWidth={1.75} className="text-[var(--accent)]" />
           ) : (
-            <Moon size={18} strokeWidth={1.75} className="text-[#0F172A]" />
+            <Moon size={18} strokeWidth={1.75} className="text-[#0A192F]" />
           )}
         </motion.div>
       </AnimatePresence>

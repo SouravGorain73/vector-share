@@ -122,7 +122,7 @@ function HeroSection({ openSignUp, openSignIn }) {
           
           {/* Left Column (Editorial Headline & Proposition) - 7 cols */}
           <div className="lg:col-span-7 space-y-8 animate-fade-in-up">
-            {/* Telemetry Badge */}
+            {/* Feature Badge */}
             <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface-elevated border border-border text-xs text-secondary">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               <span className="text-primary font-semibold">SIMPLE & SECURE</span>
@@ -191,7 +191,7 @@ function HeroSection({ openSignUp, openSignIn }) {
                 <span className="text-accent font-semibold">Upload Complete</span>
               </div>
 
-              {/* Upload Specimen Canvas */}
+              {/* Upload Preview Canvas */}
               <div className="border border-dashed border-border rounded-lg p-6 bg-surface-muted text-center space-y-3">
                 <div className="w-12 h-12 rounded-lg mx-auto bg-surface-elevated border border-border flex items-center justify-center text-accent">
                   <ShieldCheck size={24} />
@@ -205,7 +205,7 @@ function HeroSection({ openSignUp, openSignIn }) {
                   </div>
                 </div>
 
-                {/* Progress Meter Specimen */}
+                {/* Progress Meter Preview */}
                 <div className="space-y-1.5 pt-2">
                   <div className="flex justify-between text-[11px]">
                     <span className="text-secondary">Upload Status</span>
@@ -217,7 +217,7 @@ function HeroSection({ openSignUp, openSignIn }) {
                 </div>
               </div>
 
-              {/* Architectural Telemetry Matrix */}
+              {/* Security & Privacy Matrix */}
               <div className="mt-5 grid grid-cols-2 gap-3 text-xs">
                 <div className="p-3 bg-surface-elevated border border-border rounded-lg">
                   <div className="text-[10px] text-muted uppercase font-semibold">Transfer</div>
@@ -229,7 +229,7 @@ function HeroSection({ openSignUp, openSignIn }) {
                 </div>
               </div>
 
-              {/* Quick Specimen Link Preview */}
+              {/* Quick Share Link Preview */}
               <div className="mt-4 p-3 bg-surface-elevated border border-border rounded-lg flex items-center justify-between text-xs">
                 <span className="text-secondary truncate">vectorshare.app/share/sample-link</span>
                 <span className="text-accent shrink-0 font-bold ml-2">Copied!</span>
