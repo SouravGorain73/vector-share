@@ -2,19 +2,19 @@ import { Check, ArrowRight } from 'lucide-react';
 
 function PricingSection({ pricingPlans }) {
   return (
-    <section id="pricing" className="relative py-28 bg-[#111827] text-[#F5F3EB] border-b border-[#E5E3DA]/10">
+    <section id="pricing" className="relative py-28 bg-app text-primary border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="mb-16 text-center max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#151F2E] border border-[#E5E3DA]/15 text-xs font-mono text-[#D7FF64] mb-4">
-            <span>[02 // ALLOCATION TIERS]</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-elevated border border-border text-xs font-semibold text-accent mb-4">
+            <span>Plans & Pricing</span>
           </div>
-          <h2 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-[#FFFFFF]">
-            TRANSPARENT REPOSITORIES.
+          <h2 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-primary">
+            Simple, transparent pricing.
           </h2>
-          <p className="mt-3 text-base text-[#737373] font-sans">
-            Predictable bandwidth and dedicated storage quotas. Upgrade or downgrade without locking restrictions.
+          <p className="mt-3 text-base text-secondary font-sans">
+            Choose the plan that fits your storage needs. Upgrade, downgrade, or cancel anytime with no surprises.
           </p>
         </div>
 
@@ -25,15 +25,15 @@ function PricingSection({ pricingPlans }) {
             return (
               <div
                 key={index}
-                className={`relative flex flex-col justify-between rounded-lg transition-all duration-200 ${
+                className={`relative flex flex-col justify-between rounded-xl transition-all duration-200 ${
                   isFeatured
-                    ? 'bg-[#151F2E] border-2 border-[#D7FF64] shadow-2xl scale-[1.02] z-10'
-                    : 'bg-[#0E1522] border border-[#E5E3DA]/15 hover:border-[#E5E3DA]/30'
+                    ? 'bg-card border-2 border-accent shadow-2xl scale-[1.02] z-10'
+                    : 'bg-card border border-border hover:border-accent/40 shadow-sm'
                 }`}
               >
                 {isFeatured && (
-                  <div className="bg-[#D7FF64] text-[#111827] px-4 py-1.5 text-center text-xs font-mono font-bold uppercase tracking-wider rounded-t-[6px]">
-                    ★ Recommended Ingest Specification
+                  <div className="bg-accent text-accent-contrast px-4 py-1.5 text-center text-xs font-bold uppercase tracking-wider rounded-t-[10px]">
+                    ★ Most Popular
                   </div>
                 )}
 
@@ -41,29 +41,29 @@ function PricingSection({ pricingPlans }) {
                   <div>
                     {/* Tier Name & Description */}
                     <div className="flex items-center justify-between">
-                      <h3 className="font-display font-bold text-2xl text-[#FFFFFF]">
+                      <h3 className="font-display font-bold text-2xl text-primary">
                         {plan.name}
                       </h3>
-                      <span className="text-xs font-mono text-[#737373]">
-                        SPEC_0{index + 1}
+                      <span className="text-xs font-medium text-muted">
+                        Plan {index + 1}
                       </span>
                     </div>
-                    <p className="mt-2 text-xs font-sans text-[#737373]">
+                    <p className="mt-2 text-xs font-sans text-secondary">
                       {plan.description}
                     </p>
 
                     {/* Numerical Price */}
-                    <div className="my-8 pb-6 border-b border-[#E5E3DA]/10">
+                    <div className="my-8 pb-6 border-b border-border">
                       <div className="flex items-baseline gap-1">
-                        <span className="font-display font-extrabold text-4xl sm:text-5xl text-[#FFFFFF]">
+                        <span className="font-display font-extrabold text-4xl sm:text-5xl text-primary">
                           {plan.price}
                         </span>
                         {plan.price !== '₹0' && (
-                          <span className="text-xs font-mono text-[#737373]">/MONTH</span>
+                          <span className="text-xs font-medium text-muted uppercase">/month</span>
                         )}
                       </div>
-                      <span className="text-[11px] font-mono text-[#737373] block mt-1">
-                        {plan.name === 'Free' ? 'NO CREDIT CARD REQUIRED' : 'BILLED MONTHLY • CANCEL ANYTIME'}
+                      <span className="text-[11px] font-sans text-muted block mt-1">
+                        {plan.name === 'Free' ? 'No credit card required' : 'Billed monthly • Cancel anytime'}
                       </span>
                     </div>
 
@@ -72,11 +72,11 @@ function PricingSection({ pricingPlans }) {
                       {plan.features.map((feature, fi) => (
                         <li key={fi} className="flex items-start gap-3 text-xs font-sans">
                           <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                            isFeatured ? 'bg-[#D7FF64]/20 text-[#D7FF64]' : 'bg-[#151F2E] text-[#737373]'
+                            isFeatured ? 'bg-accent/20 text-accent' : 'bg-surface-elevated text-secondary'
                           }`}>
                             <Check size={11} />
                           </div>
-                          <span className="text-[#F5F3EB]/90">{feature}</span>
+                          <span className="text-secondary">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -84,10 +84,10 @@ function PricingSection({ pricingPlans }) {
 
                   {/* CTA Action */}
                   <button
-                    className={`w-full py-3.5 px-6 rounded font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full py-3.5 px-6 rounded-lg font-semibold text-xs uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
                       isFeatured
-                        ? 'bg-[#D7FF64] text-[#111827] hover:bg-[#c9f550] shadow-md'
-                        : 'bg-[#151F2E] text-[#F5F3EB] border border-[#E5E3DA]/20 hover:border-[#D7FF64] hover:text-[#FFFFFF]'
+                        ? 'bg-accent text-accent-contrast hover:bg-accent-hover shadow-md'
+                        : 'bg-surface-elevated text-primary border border-border hover:border-accent hover:bg-card-hover'
                     }`}
                   >
                     <span>{plan.cta}</span>

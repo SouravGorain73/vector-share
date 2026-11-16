@@ -12,7 +12,7 @@ function GoogleButton({ label = 'Continue with Google', onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="google-btn w-full flex items-center justify-center gap-3 px-5 py-3 rounded-md bg-[#161F2E] hover:bg-[#1E293B] border border-[#E5E3DA]/15 hover:border-[#D7FF64] text-[#F5F3EB] font-sans font-medium text-sm transition-all duration-200 cursor-pointer shadow-sm"
+      className="google-btn w-full flex items-center justify-center gap-3 px-5 py-3 rounded-lg bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-[var(--accent)] text-[var(--text-primary)] font-sans font-medium text-sm transition-all duration-200 cursor-pointer shadow-sm"
       id="google-oauth-btn"
     >
       <GoogleIcon />

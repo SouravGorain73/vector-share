@@ -23,7 +23,7 @@ function Landing() {
   const goToLogin = () => navigate('/login');
 
   return (
-    <div className="landing-page bg-[#111827] text-[#F5F3EB] min-h-screen">
+    <div className="landing-page min-h-screen bg-app text-primary transition-colors">
       {/* Hero Section */}
       <HeroSection openSignUp={goToRegister} openSignIn={goToLogin} />
 

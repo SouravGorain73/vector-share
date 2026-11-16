@@ -6,36 +6,36 @@ function CTASection({ openSignUp }) {
   const handleSignUp = openSignUp || (() => navigate('/register'));
 
   return (
-    <section className="relative py-28 bg-[#111827] text-[#F5F3EB] border-b border-[#E5E3DA]/10">
+    <section className="relative py-28 bg-app text-primary border-b border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#0E1522] border border-[#E5E3DA]/15 rounded-lg p-10 sm:p-16 relative overflow-hidden">
+        <div className="bg-card border border-border rounded-2xl p-10 sm:p-16 relative overflow-hidden shadow-xl">
           
           <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#151F2E] border border-[#E5E3DA]/15 text-xs font-mono text-[#D7FF64]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-elevated border border-border text-xs font-semibold text-accent">
               <ShieldCheck size={14} />
-              <span>[04 // IMMEDIATE REPOSITORY ACCESS]</span>
+              <span>Get Started Today</span>
             </div>
 
-            <h2 className="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl tracking-tight text-[#FFFFFF] leading-tight">
-              COMMENCE <br />
-              HIGH-INTEGRITY <br />
-              DISTRIBUTION.
+            <h2 className="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl tracking-tight text-primary leading-tight">
+              Ready to start <br />
+              sharing your files <br />
+              securely?
             </h2>
 
-            <p className="text-base text-[#737373] max-w-xl font-sans">
-              Deploy your encrypted storage space in seconds. Experience fast upload conduits, granular visibility controls, and verifiable link generation.
+            <p className="text-base text-secondary max-w-xl font-sans leading-relaxed">
+              Create your free account in seconds. Upload files, generate shareable links, and keep your data safe.
             </p>
 
             <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <button
                 onClick={handleSignUp}
-                className="group flex items-center justify-center gap-3 px-8 py-4 text-xs font-mono font-bold uppercase tracking-wider text-[#111827] bg-[#D7FF64] hover:bg-[#c9f550] rounded transition-all duration-200 shadow-md cursor-pointer"
+                className="group flex items-center justify-center gap-3 px-8 py-4 text-xs font-bold uppercase tracking-wider text-accent-contrast bg-accent hover:bg-accent-hover rounded-lg transition-all duration-200 shadow-md cursor-pointer"
               >
-                <span>Initiate Free Vault</span>
+                <span>Create Free Account</span>
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <span className="text-xs font-mono text-[#737373] text-center sm:text-left">
-                No credit card • Free 5-file allotment
+              <span className="text-xs text-muted text-center sm:text-left font-sans">
+                No credit card required • Includes 5 free uploads
               </span>
             </div>
           </div>

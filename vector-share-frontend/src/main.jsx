@@ -2,35 +2,37 @@ import { createRoot } from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
 import App from './App.jsx';
+import { ThemeProvider } from './context/ThemeContext';
 
 createRoot(document.getElementById('root')).render(
-  <>
+  <ThemeProvider>
     <App />
     <Toaster
       position="top-right"
       toastOptions={{
         style: {
-          background: '#111827',
-          color: '#F5F3EB',
-          border: '1px solid rgba(229, 227, 218, 0.2)',
-          borderRadius: '6px',
+          background: 'var(--bg-card)',
+          color: 'var(--text-primary)',
+          border: 'var(--card-border)',
+          borderRadius: '8px',
           fontSize: '13px',
+          fontWeight: '500',
           fontFamily: "'Plus Jakarta Sans', sans-serif",
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)',
+          boxShadow: 'var(--shadow-elevation)',
         },
         success: {
           iconTheme: {
-            primary: '#D7FF64',
-            secondary: '#111827',
+            primary: '#10B981',
+            secondary: '#FFFFFF',
           },
         },
         error: {
           iconTheme: {
-            primary: '#ef4444',
-            secondary: '#111827',
+            primary: '#EF4444',
+            secondary: '#FFFFFF',
           },
         },
       }}
     />
-  </>
+  </ThemeProvider>
 );

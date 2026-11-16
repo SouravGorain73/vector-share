@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Share2, Loader2, AlertCircle } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 function OAuthSuccess() {
   const [searchParams] = useSearchParams();
@@ -19,33 +20,36 @@ function OAuthSuccess() {
         return () => clearTimeout(timer);
       } catch {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setError('Failed to process authentication token. Please re-authenticate.');
+        setError("We couldn't log you in with Google. Please try again.");
       }
     } else {
-      setError('No authentication token received from identity provider.');
+      setError('No login token received. Please try signing in again.');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#111827] text-[#F5F3EB] flex items-center justify-center px-4 font-sans bg-grid-technical">
-        <div className="w-full max-w-md text-center animate-fade-in-up bg-[#0E1522] border border-red-500/20 p-8 rounded-lg shadow-2xl">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded bg-red-500/10 border border-red-500/30 text-red-400 mb-5">
+      <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex items-center justify-center px-4 font-sans bg-grid-technical relative">
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+          <ThemeToggle />
+        </div>
+        <div className="w-full max-w-md text-center animate-fade-in-up bg-[var(--bg-card)] border border-red-500/20 p-8 rounded-xl shadow-xl">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 text-red-500 mb-5">
             <AlertCircle size={28} />
           </div>
-          <div className="text-[11px] font-mono uppercase tracking-widest text-red-400 mb-1">
-            [OAUTH // FAULT]
+          <div className="text-xs font-medium uppercase tracking-wider text-red-500 mb-1">
+            Sign In Error
           </div>
-          <h1 className="font-display font-extrabold text-2xl text-[#FFFFFF] mb-2">
-            Authentication Incomplete
+          <h1 className="font-display font-bold text-2xl text-[var(--text-primary)] mb-2">
+            Couldn't Sign You In
           </h1>
-          <p className="text-xs text-[#737373] mb-6 font-mono leading-relaxed">{error}</p>
+          <p className="text-sm text-[var(--text-secondary)] mb-6 leading-relaxed">{error}</p>
           <button
             onClick={() => navigate('/login')}
-            className="w-full py-3 px-6 bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider rounded transition-all cursor-pointer"
+            className="w-full py-3 px-6 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-contrast)] font-medium text-sm rounded-lg transition-colors cursor-pointer"
           >
-            Return to Authentication
+            Return to Login
           </button>
         </div>
       </div>
@@ -53,23 +57,23 @@ function OAuthSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-[#111827] text-[#F5F3EB] flex items-center justify-center px-4 font-sans bg-grid-technical">
-      <div className="text-center relative z-10 animate-fade-in-up bg-[#0E1522] border border-[#E5E3DA]/15 p-10 rounded-lg shadow-2xl max-w-md w-full">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded bg-[#151F2E] border border-[#D7FF64]/40 text-[#D7FF64] mb-6">
+    <div className="min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex items-center justify-center px-4 font-sans bg-grid-technical relative">
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+        <ThemeToggle />
+      </div>
+      <div className="text-center relative z-10 animate-fade-in-up bg-[var(--bg-card)] border border-[var(--border-color)] p-10 rounded-xl shadow-xl max-w-md w-full">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] text-[var(--accent)] mb-6 shadow-sm">
           <Share2 size={26} />
         </div>
-        <div className="text-[11px] font-mono uppercase tracking-widest text-[#D7FF64] mb-1">
-          [OAUTH // HANDSHAKE]
-        </div>
-        <h1 className="font-display font-extrabold text-2xl text-[#FFFFFF] mb-2">
-          Verifying Identity
+        <h1 className="font-display font-bold text-2xl text-[var(--text-primary)] mb-2">
+          Logging You In...
         </h1>
-        <p className="text-xs text-[#737373] mb-8 font-mono">
-          Synchronizing OAuth2 bearer token with vault state...
+        <p className="text-sm text-[var(--text-secondary)] mb-8">
+          Finalizing your sign in, just a moment...
         </p>
-        <div className="flex items-center justify-center gap-2 text-xs font-mono text-[#D7FF64]">
-          <Loader2 size={20} className="animate-spin text-[#D7FF64]" />
-          <span>ESTABLISHING SESSION</span>
+        <div className="flex items-center justify-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+          <Loader2 size={20} className="animate-spin text-[var(--accent)]" />
+          <span>Loading your workspace...</span>
         </div>
       </div>
     </div>
