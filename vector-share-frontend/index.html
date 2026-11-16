@@ -4,18 +4,38 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/cloud-storage.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="VectorShare — Upload, manage, and share your files securely with enterprise-grade encryption. Simple link sharing, granular visibility controls, and Google OAuth." />
-    <meta name="theme-color" content="#0a0a1a" />
-    <meta property="og:title" content="VectorShare — Secure File Sharing" />
-    <meta property="og:description" content="Upload, manage, and share your files securely with enterprise-grade encryption." />
+    <meta name="description" content="Fast, secure, and private file sharing with link expiration and password protection." />
+    <meta name="theme-color" content="#0B1120" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('vectorshare-theme');
+          var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          var isDark = saved ? saved === 'dark' : !prefersLight;
+          var root = document.documentElement;
+          if (isDark) {
+            root.classList.add('dark');
+            root.classList.remove('light');
+            root.style.colorScheme = 'dark';
+          } else {
+            root.classList.add('light');
+            root.classList.remove('dark');
+            root.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <meta property="og:title" content="VectorShare — Fast & Secure File Sharing" />
+    <meta property="og:description" content="Fast, secure, and private file sharing with link expiration and password protection." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://vectorshare.app" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <title>VectorShare — Secure File Sharing Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <title>VectorShare — Fast & Secure File Sharing</title>
   </head>
-  <body>
+  <body class="antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

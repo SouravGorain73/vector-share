@@ -1,7 +1,7 @@
 import api from './api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const BACKEND_ROOT = API_BASE_URL.replace('/api/v1', '');
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+const BACKEND_ROOT = (API_BASE_URL || '').replace(/\/api\/v1\/?$/, '');
 
 export const authService = {
   // ---- OTP Verification ----

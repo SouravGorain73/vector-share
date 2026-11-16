@@ -82,8 +82,9 @@ function getFileExtension(filename) {
 export const getFileIcon = (filename) => {
   const ext = getFileExtension(filename);
   return extensionMap[ext] || defaultEntry;
-}
+};
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function getFileInfo(filename) {
   const ext = getFileExtension(filename);
   return extensionMap[ext] || defaultEntry;

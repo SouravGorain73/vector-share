@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Share2, Loader2, AlertCircle } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 function OAuthSuccess() {
   const [searchParams] = useSearchParams();
@@ -15,31 +16,40 @@ function OAuthSuccess() {
     if (token) {
       try {
         handleOAuthCallback(token);
-        setTimeout(() => navigate('/dashboard', { replace: true }), 500);
+        const timer = setTimeout(() => navigate('/dashboard', { replace: true }), 500);
+        return () => clearTimeout(timer);
       } catch {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setError('Failed to process authentication. Please try again.');
+        setError("We couldn't log you in with Google. Please try again.");
       }
     } else {
-      setError('No authentication token received.');
+      setError('No login token received. Please try signing in again.');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   if (error) {
-  console.log(error)
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center animate-fade-in-up">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-500/15 mb-6">
-            <AlertCircle size={32} className="text-red-400" />
+      <div className="min-h-screen md:h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex items-center justify-center p-3 sm:p-4 font-sans bg-grid-technical relative overflow-y-auto md:overflow-hidden">
+        <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20">
+          <ThemeToggle />
+        </div>
+        <div className="w-full max-w-sm sm:max-w-md text-center animate-fade-in-up bg-[var(--bg-card)] border border-red-500/20 p-5 sm:p-6 rounded-xl shadow-xl py-6">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 text-red-500 mb-4">
+            <AlertCircle size={24} />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Authentication Failed</h1>
-          <p className="text-gray-400 mb-8">{error}</p>
+          <div className="text-xs font-medium uppercase tracking-wider text-red-500 mb-1">
+            Sign In Error
+          </div>
+          <h1 className="font-display font-bold text-xl sm:text-2xl text-[var(--text-primary)] mb-2">
+            Couldn't Sign You In
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] mb-5 leading-relaxed">{error}</p>
           <button
             onClick={() => navigate('/login')}
-            className="px-6 py-3 bg-linear-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
+            className="w-full py-2.5 sm:py-3 px-6 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-contrast)] font-medium text-sm rounded-lg transition-colors cursor-pointer"
           >
-            Back to Login
+            Return to Login
           </button>
         </div>
       </div>
@@ -47,19 +57,24 @@ function OAuthSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
+    <div className="min-h-screen md:h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex items-center justify-center p-3 sm:p-4 font-sans bg-grid-technical relative overflow-y-auto md:overflow-hidden">
+      <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20">
+        <ThemeToggle />
       </div>
-
-      <div className="text-center relative z-10 animate-fade-in-up">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/25 mb-6 animate-pulse-glow">
-          <Share2 size={32} className="text-white" />
+      <div className="text-center relative z-10 animate-fade-in-up bg-[var(--bg-card)] border border-[var(--border-color)] p-6 sm:p-8 rounded-xl shadow-xl max-w-sm sm:max-w-md w-full">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] text-[var(--accent)] mb-4 shadow-sm">
+          <Share2 size={22} />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-3">Signing you in...</h1>
-        <p className="text-gray-400 mb-8">Completing Google authentication</p>
-        <Loader2 size={32} className="mx-auto text-purple-400 animate-spin" />
+        <h1 className="font-display font-bold text-xl sm:text-2xl text-[var(--text-primary)] mb-1.5">
+          Logging You In...
+        </h1>
+        <p className="text-xs sm:text-sm text-[var(--text-secondary)] mb-6">
+          Finalizing your sign in, just a moment...
+        </p>
+        <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-medium text-[var(--text-secondary)]">
+          <Loader2 size={18} className="animate-spin text-[var(--accent)]" />
+          <span>Loading your workspace...</span>
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Share2, ArrowRight } from 'lucide-react';
 import GoogleButton from '../components/GoogleButton';
+import ThemeToggle from '../components/ThemeToggle';
 import authService from '../services/authService';
 
 function Login() {
@@ -36,37 +37,45 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-orb"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] animate-orb-2"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[150px]"></div>
+    <div className="min-h-screen md:h-screen bg-[var(--bg-app)] text-[var(--text-primary)] flex items-center justify-center p-3 sm:p-4 relative overflow-y-auto md:overflow-hidden bg-grid-technical font-sans">
+      {/* Top Header / Mode Switcher */}
+      <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20">
+        <ThemeToggle />
       </div>
 
-      <div className="w-full max-w-md relative z-10 animate-fade-in-up">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/25 mb-4">
-            <Share2 size={28} className="text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-white">Welcome back</h1>
-          <p className="mt-2 text-gray-400">Sign in to your VectorShare account</p>
+      <div className="w-full max-w-sm sm:max-w-md relative z-10 animate-fade-in-up py-2">
+        
+        {/* Brand Header */}
+        <div className="text-center mb-3 sm:mb-4">
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] text-[var(--accent)] mb-2 hover:border-[var(--accent)] transition-colors shadow-sm"
+          >
+            <Share2 size={20} />
+          </Link>
+          <h1 className="font-display font-bold text-2xl sm:text-3xl text-[var(--text-primary)] tracking-tight">
+            Log In to VectorShare
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-[var(--text-secondary)]">
+            Enter your email and password to access your files
+          </p>
         </div>
 
-        {/* Form card */}
-        <div className="glass-card p-8">
+        {/* Auth Form Card */}
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-5 sm:p-6 shadow-xl">
           {/* Google OAuth */}
           <GoogleButton label="Sign in with Google" onClick={handleGoogleLogin} />
 
-          <div className="auth-divider my-6">or continue with email</div>
+          <div className="auth-divider my-3.5 sm:my-4 text-xs">or sign in with email</div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Email address</label>
+              <label htmlFor="login-email" className="block text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)] mb-1 sm:mb-1.5">
+                Email address
+              </label>
               <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                 <input
                   id="login-email"
                   type="email"
@@ -74,16 +83,23 @@ function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-2 sm:py-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+              <div className="flex items-center justify-between mb-1 sm:mb-1.5">
+                <label htmlFor="login-password" className="block text-xs font-medium uppercase tracking-wider text-[var(--text-secondary)]">
+                  Password
+                </label>
+                <Link to="/forgot-password" className="text-xs font-medium text-[var(--accent)] hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                 <input
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
@@ -92,56 +108,51 @@ function Login() {
                   placeholder="Enter your password"
                   required
                   minLength={6}
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                  className="w-full pl-10 pr-11 py-2 sm:py-2.5 bg-[var(--bg-surface-elevated)] border border-[var(--border-color)] rounded-lg text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            {/* Forgot password link */}
-            <div className="flex justify-end">
-              <Link to="/forgot-password" className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
-                Forgot password?
-              </Link>
-            </div>
             {/* Submit */}
             <button
               id="login-submit"
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-2.5 sm:py-3 px-6 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-contrast)] font-medium text-sm rounded-lg transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-3 sm:mt-4"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <>
-                  Sign In
-                  <ArrowRight size={18} />
+                  <span>Log In</span>
+                  <ArrowRight size={16} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Register link */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
+          {/* Registration link */}
+          <div className="mt-4 pt-3 sm:mt-4 sm:pt-3.5 border-t border-[var(--border-color)] text-center">
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
               Don't have an account?{' '}
-              <Link to="/register" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
-                Create account
+              <Link to="/register" className="text-[var(--accent)] font-semibold hover:underline">
+                Sign up free
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Back to landing */}
-        <div className="mt-6 text-center">
-          <Link to="/" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
+        {/* Back Link */}
+        <div className="mt-2.5 sm:mt-3 text-center">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             ← Back to home
           </Link>
         </div>

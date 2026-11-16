@@ -3,50 +3,54 @@ import { footerLinks } from '../../assets/data';
 
 function FooterSection() {
   return (
-    <footer className="relative bg-gray-950 border-t border-gray-800/50">
-      {/* Gradient accent line */}
-      <div className="h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
-
+    <footer className="relative bg-surface-muted text-primary border-t border-border font-sans transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-          {/* Brand */}
-          <div className="col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
-                <Share2 size={18} className="text-white" />
-              </div>
-              <span className="text-lg font-bold text-white">VectorShare</span>
-            </div>
-            <p className="text-sm text-gray-500 max-w-xs leading-relaxed mb-6">
-              Secure file sharing platform with enterprise-grade encryption. Upload, manage, and share with confidence.
-            </p>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
+          
+          {/* Brand Dossier */}
+          <div className="col-span-2 space-y-4">
             <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-surface-elevated border border-border flex items-center justify-center text-accent">
+                <Share2 size={16} />
+              </div>
+              <span className="font-display font-bold text-base tracking-tight text-primary">
+                VECTOR<span className="text-accent">SHARE</span>
+              </span>
+            </div>
+            <p className="text-xs text-secondary max-w-sm leading-relaxed font-sans">
+              Secure, modern file sharing made simple. Upload your files, generate instant links, and maintain total control over your shared content.
+            </p>
+            <div className="flex items-center gap-3 pt-2">
               {[
-                { icon: Globe, href: '#' },
-                { icon: Mail, href: '#' },
-                { icon: MessageCircle, href: '#' },
-              ].map(({ icon: Icon, href }, i) => (
+                { icon: Globe, href: '#', label: 'Website' },
+                { icon: Mail, href: '#', label: 'Contact' },
+                { icon: MessageCircle, href: '#', label: 'Community' },
+              ].map(({ icon: Icon, href, label }, i) => (
                 <a
                   key={i}
                   href={href}
-                  className="w-9 h-9 rounded-lg bg-gray-800/50 border border-gray-700/30 flex items-center justify-center text-gray-500 hover:text-purple-400 hover:border-purple-500/30 transition-all"
+                  aria-label={label}
+                  className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-colors"
                 >
-                  <Icon size={16} />
+                  <Icon size={14} />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Links */}
+          {/* Directory Links */}
           {Object.entries(footerLinks).map(([section, links]) => (
-            <div key={section}>
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
+            <div key={section} className="space-y-3">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-accent">
                 {section}
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2.5">
                 {links.map((link, i) => (
                   <li key={i}>
-                    <a href={link.href} className="text-sm text-gray-500 hover:text-purple-400 transition-colors">
+                    <a
+                      href={link.href}
+                      className="text-xs text-muted hover:text-primary transition-colors"
+                    >
                       {link.label}
                     </a>
                   </li>
@@ -54,16 +58,21 @@ function FooterSection() {
               </ul>
             </div>
           ))}
+
         </div>
 
-        {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-gray-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-600">
+        {/* Footer Base */}
+        <div className="mt-14 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
+          <p>
             &copy; {new Date().getFullYear()} VectorShare. All rights reserved.
           </p>
-          <p className="text-xs text-gray-700">
-            Built with ❤️ for secure file sharing
-          </p>
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              All Systems Operational
+            </span>
+            <span>256-bit Encryption</span>
+          </div>
         </div>
       </div>
     </footer>

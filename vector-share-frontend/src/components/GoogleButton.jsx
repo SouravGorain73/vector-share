@@ -1,4 +1,3 @@
-
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z" fill="#4285F4"/>
@@ -13,7 +12,7 @@ function GoogleButton({ label = 'Continue with Google', onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="google-btn"
+      className="google-btn w-full flex items-center justify-center gap-2.5 sm:gap-3 px-4 sm:px-5 py-2.5 rounded-lg bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-color)] hover:border-[var(--accent)] text-[var(--text-primary)] font-sans font-medium text-sm transition-all duration-200 cursor-pointer shadow-sm"
       id="google-oauth-btn"
     >
       <GoogleIcon />
