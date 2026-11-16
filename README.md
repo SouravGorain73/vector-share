@@ -165,5 +165,5 @@ Hi, I'm **Sourav Gorain**, a final-year B.Tech Information Technology student wi
 
 I'm always looking to learn new technologies and improve my software engineering skills by working on practical projects like Vector-Share.
 
-If you found this project interesting, feel free to ⭐ the repository or connect with me on LinkedIn.
+If you found this project interesting, feel free to ⭐ the repository or connect with me on LinkedIn.  
 LinkedIn : https://www.linkedin.com/in/souravgorain/
