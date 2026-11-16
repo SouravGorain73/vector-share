@@ -1,67 +1,73 @@
-import { Star, Quote } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 function TestimonialSection({ testimonials }) {
   return (
-    <section id="testimonials" className="relative py-24 bg-gray-950">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="orb w-[350px] h-[350px] bg-purple-600/8 top-[30%] right-[10%]" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-            Trusted by <span className="gradient-text">Professionals</span> Worldwide
+    <section id="testimonials" className="relative py-28 bg-[#111827] text-[#F5F3EB] border-b border-[#E5E3DA]/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="mb-16 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#151F2E] border border-[#E5E3DA]/15 text-xs font-mono text-[#D7FF64] mb-4">
+            <span>[03 // FIELD ATTESTATIONS]</span>
+          </div>
+          <h2 className="font-display font-extrabold text-3xl sm:text-5xl tracking-tight text-[#FFFFFF]">
+            PROVEN BY DESIGN LEADERS.
           </h2>
-          <p className="mt-4 max-w-3xl mx-auto text-lg text-gray-400">
-            See what our users have to say about VectorShare
+          <p className="mt-3 text-base text-[#737373] font-sans">
+            Independent teams and high-throughput studios rely on VectorShare for frictionless client asset delivery.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        {/* Editorial Pull-Quote Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="glass-card-hover p-7 animate-fade-in-up"
-              style={{ animationDelay: `${index * 0.15}s`, opacity: 0, animationFillMode: 'forwards' }}
+              className="p-8 bg-[#0E1522] border border-[#E5E3DA]/10 rounded-lg hover:border-[#D7FF64]/40 transition-all duration-200 flex flex-col justify-between"
             >
-              {/* Quote icon */}
-              <div className="mb-5">
-                <Quote size={24} className="text-purple-500/30" />
+              <div>
+                {/* Pull-quote mark & rating */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="font-display font-black text-3xl text-[#D7FF64]/50 leading-none">
+                    “
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        size={12}
+                        className={`${i < testimonial.rating ? 'text-[#D7FF64]' : 'text-[#737373]/30'} fill-current`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quote copy */}
+                <blockquote className="text-sm font-sans text-[#F5F3EB]/90 leading-relaxed italic mb-8">
+                  {testimonial.quote}
+                </blockquote>
               </div>
 
-              {/* Quote text */}
-              <blockquote className="mb-6">
-                <p className="text-sm text-gray-300 leading-relaxed italic">
-                  "{testimonial.quote}"
-                </p>
-              </blockquote>
-
-              {/* Rating */}
-              <div className="flex items-center gap-1 mb-5">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={14}
-                    className={`${i < testimonial.rating ? 'text-amber-400' : 'text-gray-700'} fill-current`}
-                  />
-                ))}
-              </div>
-
-              {/* Author */}
-              <div className="flex items-center gap-3 pt-5 border-t border-gray-800/50">
+              {/* Attribution */}
+              <div className="pt-5 border-t border-[#E5E3DA]/10 flex items-center gap-3.5">
                 <img
                   src={testimonial.image}
                   alt={testimonial.name}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-purple-500/20"
+                  className="w-9 h-9 rounded-full object-cover border border-[#E5E3DA]/20"
                 />
                 <div>
-                  <h4 className="text-sm font-semibold text-white">{testimonial.name}</h4>
-                  <p className="text-xs text-gray-500">{testimonial.role}, {testimonial.company}</p>
+                  <h4 className="font-display font-bold text-xs text-[#FFFFFF]">
+                    {testimonial.name}
+                  </h4>
+                  <p className="text-[11px] font-mono text-[#737373]">
+                    {testimonial.role} // {testimonial.company}
+                  </p>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );

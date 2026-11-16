@@ -2,21 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import fileService from '../services/fileService';
-import FileIcon, { } from '../components/FileIcon';
+import FileIcon from '../components/FileIcon';
 import {
   FolderOpen,
   Globe,
   Lock,
   HardDrive,
   Upload,
-  TrendingUp,
   ExternalLink,
   Clock,
   ArrowRight,
+  ShieldCheck,
+  Activity,
+  Layers,
 } from 'lucide-react';
 
-// Animated counter hook
-function useCountUp(target, duration = 1000) {
+function useCountUp(target, duration = 800) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
 
@@ -32,7 +33,6 @@ function useCountUp(target, duration = 1000) {
     function animate(now) {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       const value = Math.round(eased * target);
       setCount(value);
@@ -76,12 +76,10 @@ function Dashboard() {
   const totalSize = files.reduce((sum, f) => sum + (f.fileSize || 0), 0);
   const recentFiles = [...files].sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)).slice(0, 5);
 
-  // Animated counters
   const animatedTotal = useCountUp(loading ? 0 : totalFiles);
   const animatedPublic = useCountUp(loading ? 0 : publicFiles);
   const animatedPrivate = useCountUp(loading ? 0 : privateFiles);
 
-  // File type distribution
   const typeDistribution = files.reduce((acc, f) => {
     const ext = f.originalFileName?.split('.').pop()?.toLowerCase() || 'other';
     const category = getFileCategory(ext);
@@ -89,235 +87,324 @@ function Dashboard() {
     return acc;
   }, {});
 
-  const typeColors = {
-    Images: 'from-pink-500 to-rose-400',
-    Documents: 'from-blue-500 to-cyan-400',
-    Code: 'from-yellow-500 to-amber-400',
-    Media: 'from-purple-500 to-violet-400',
-    Archives: 'from-amber-500 to-orange-400',
-    Other: 'from-gray-500 to-gray-400',
+  const typeColorClasses = {
+    Images: 'bg-pink-400',
+    Documents: 'bg-blue-400',
+    Code: 'bg-yellow-400',
+    Media: 'bg-teal-400',
+    Archives: 'bg-amber-400',
+    Other: 'bg-[#D7FF64]',
   };
 
   const stats = [
     {
-      label: 'Total Files',
+      code: '01',
+      label: 'TOTAL OBJECTS',
       value: animatedTotal,
+      sublabel: 'Encrypted items',
       icon: FolderOpen,
-      gradient: 'from-purple-500 to-indigo-600',
+      accent: 'text-[#D7FF64]',
     },
     {
-      label: 'Public Files',
+      code: '02',
+      label: 'PUBLIC DISPATCHES',
       value: animatedPublic,
+      sublabel: 'Tokenized links active',
       icon: Globe,
-      gradient: 'from-emerald-500 to-teal-600',
+      accent: 'text-emerald-400',
     },
     {
-      label: 'Private Files',
+      code: '03',
+      label: 'PRIVATE ENCLAVES',
       value: animatedPrivate,
+      sublabel: 'Zero-access credentials',
       icon: Lock,
-      gradient: 'from-amber-500 to-orange-600',
+      accent: 'text-amber-400',
     },
     {
-      label: 'Storage Used',
+      code: '04',
+      label: 'STORAGE FOOTPRINT',
       value: fileService.formatFileSize(totalSize),
+      sublabel: 'Allocated repository space',
       icon: HardDrive,
-      gradient: 'from-pink-500 to-rose-600',
+      accent: 'text-[#FFFFFF]',
     },
   ];
 
-  // Storage used percentage (max 50MB per file, estimate 500MB total for free plan)
   const maxStorage = 500 * 1024 * 1024; // 500 MB
   const storagePercent = Math.min((totalSize / maxStorage) * 100, 100);
 
   return (
-    <div className="page-enter">
-      {/* Welcome */}
-      <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white">
-          Welcome back, <span className="gradient-text">{user?.name || 'User'}</span>
-        </h1>
-        <p className="mt-1 text-gray-400">Here's an overview of your file sharing activity</p>
+    <div className="space-y-8 animate-fade-in font-sans">
+      
+      {/* Console Dossier Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#E5E3DA]/10">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-mono text-[#D7FF64] mb-1">
+            <Activity size={14} />
+            <span>[TELEMETRY // VAULT STATUS]</span>
+          </div>
+          <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-[#FFFFFF] tracking-tight">
+            REPOSITORY CONSOLE // <span className="text-[#D7FF64]">{user?.name || 'OPERATOR'}</span>
+          </h1>
+          <p className="text-xs text-[#737373] mt-1 font-mono">
+            LIVE CRYPTOGRAPHIC ALLOCATION • TLS 1.3 PROVENANCE VERIFIED
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/upload')}
+            className="group flex items-center gap-2 px-5 py-2.5 rounded bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-sm cursor-pointer"
+          >
+            <Upload size={14} />
+            <span>Upload New File</span>
+          </button>
+        </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      {/* 4-Column Asymmetric Telemetry Matrix */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
           <div
             key={stat.label}
-            className={`glass-card p-6 animate-fade-in-up stagger-${i + 1}`}
+            className={`bg-[#0E1522] border border-[#E5E3DA]/10 rounded-lg p-5 hover:border-[#D7FF64]/30 transition-all duration-200 animate-fade-in-up stagger-${i + 1}`}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 font-medium">{stat.label}</p>
-                <p className="mt-2 text-3xl font-bold text-white">{loading ? '—' : stat.value}</p>
-              </div>
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg`}>
-                <stat.icon size={22} className="text-white" />
-              </div>
+            <div className="flex items-center justify-between text-xs font-mono text-[#737373] mb-4">
+              <span>[{stat.code}] {stat.label}</span>
+              <stat.icon size={16} className={stat.accent} />
+            </div>
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-[#FFFFFF]">
+              {loading ? '—' : stat.value}
+            </div>
+            <div className="text-[11px] font-mono text-[#737373] mt-2">
+              {stat.sublabel}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Storage Bar + File Type Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Storage Usage */}
-        <div className="glass-card p-6 animate-fade-in-up stagger-5">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <HardDrive size={18} className="text-purple-400" />
-            Storage Usage
-          </h2>
-          <div className="mb-3">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400">{fileService.formatFileSize(totalSize)} used</span>
-              <span className="text-gray-500">500 MB</span>
+      {/* Storage Meter & File Type Gauges */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {/* Storage Deck */}
+        <div className="bg-[#0E1522] border border-[#E5E3DA]/10 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-bold text-base text-[#FFFFFF] flex items-center gap-2">
+              <HardDrive size={18} className="text-[#D7FF64]" />
+              STORAGE CAPACITY QUOTA
+            </h2>
+            <span className="text-xs font-mono text-[#D7FF64] font-bold">
+              {loading ? '—' : `${storagePercent.toFixed(1)}%`}
+            </span>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex justify-between text-xs font-mono text-[#737373] mb-2">
+              <span>CONSUMED: {fileService.formatFileSize(totalSize)}</span>
+              <span>QUOTA: 500 MB</span>
             </div>
-            <div className="w-full h-3 bg-gray-800/60 rounded-full overflow-hidden">
+            <div className="w-full h-2.5 bg-[#151F2E] rounded-full overflow-hidden">
               <div
-                className="progress-bar h-full"
+                className="h-full bg-[#D7FF64] rounded-full transition-all duration-300"
                 style={{ width: loading ? '0%' : `${storagePercent}%` }}
               />
             </div>
           </div>
-          <p className="text-xs text-gray-500">
-            {loading ? '—' : `${storagePercent.toFixed(1)}%`} of your storage used
-          </p>
+
+          <div className="pt-4 border-t border-[#E5E3DA]/10 flex items-center justify-between text-[11px] font-mono text-[#737373]">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck size={13} className="text-[#D7FF64]" />
+              ZERO-KNOWLEDGE RETENTION
+            </span>
+            <button
+              onClick={() => navigate('/subscription')}
+              className="text-[#D7FF64] hover:underline"
+            >
+              UPGRADE ALLOCATION →
+            </button>
+          </div>
         </div>
 
         {/* File Type Distribution */}
-        <div className="glass-card p-6 animate-fade-in-up stagger-6">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TrendingUp size={18} className="text-purple-400" />
-            File Types
-          </h2>
+        <div className="bg-[#0E1522] border border-[#E5E3DA]/10 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-bold text-base text-[#FFFFFF] flex items-center gap-2">
+              <Layers size={18} className="text-[#D7FF64]" />
+              OBJECT CATEGORY GAUGES
+            </h2>
+            <span className="text-xs font-mono text-[#737373]">
+              {Object.keys(typeDistribution).length} CATEGORIES
+            </span>
+          </div>
+
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-6 bg-gray-800/40 rounded animate-shimmer" />
+                <div key={i} className="h-5 bg-[#151F2E] rounded animate-shimmer" />
               ))}
             </div>
           ) : Object.keys(typeDistribution).length === 0 ? (
-            <p className="text-gray-500 text-sm">No files yet</p>
+            <div className="py-8 text-center text-xs font-mono text-[#737373]">
+              NO ASSETS REGISTERED IN VAULT
+            </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {Object.entries(typeDistribution)
                 .sort(([, a], [, b]) => b - a)
                 .slice(0, 5)
                 .map(([category, count]) => (
-                  <div key={category} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-300 w-20 truncate">{category}</span>
-                    <div className="flex-1 h-2 bg-gray-800/40 rounded-full overflow-hidden">
+                  <div key={category} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-[#F5F3EB]">{category}</span>
+                      <span className="text-[#737373]">
+                        {count} items ({( (count / totalFiles) * 100 ).toFixed(0)}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#151F2E] rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full bg-gradient-to-r ${typeColors[category] || typeColors.Other}`}
-                        style={{ width: `${(count / totalFiles) * 100}%`, transition: 'width 0.5s ease' }}
+                        className={`h-full rounded-full ${typeColorClasses[category] || typeColorClasses.Other}`}
+                        style={{ width: `${(count / totalFiles) * 100}%` }}
                       />
                     </div>
-                    <span className="text-xs text-gray-500 w-8 text-right">{count}</span>
                   </div>
                 ))}
             </div>
           )}
         </div>
+
       </div>
 
-      {/* Quick Actions + Recent Files */}
+      {/* Quick Action Dock + Recent Files Registry */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
         {/* Quick Actions */}
-        <div className="glass-card p-6 animate-fade-in-up stagger-7">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TrendingUp size={18} className="text-purple-400" />
-            Quick Actions
-          </h2>
-          <div className="space-y-3">
-            <button
-              onClick={() => navigate('/upload')}
-              className="w-full flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 hover:border-purple-500/40 text-gray-200 hover:text-white transition-all duration-200 group"
-            >
-              <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
-                <Upload size={18} className="text-purple-400" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold text-sm">Upload File</p>
-                <p className="text-xs text-gray-500">Share a new file</p>
-              </div>
-              <ArrowRight size={16} className="text-gray-600 group-hover:text-purple-400 transition-colors" />
-            </button>
-            <button
-              onClick={() => navigate('/myfiles')}
-              className="w-full flex items-center gap-3 p-4 rounded-xl bg-gray-800/40 border border-gray-700/30 hover:border-gray-600/50 text-gray-200 hover:text-white transition-all duration-200 group"
-            >
-              <div className="w-10 h-10 rounded-lg bg-gray-700/30 flex items-center justify-center group-hover:bg-gray-700/50 transition-colors">
-                <FolderOpen size={18} className="text-gray-400" />
-              </div>
-              <div className="text-left flex-1">
-                <p className="font-semibold text-sm">Manage Files</p>
-                <p className="text-xs text-gray-500">View all your files</p>
-              </div>
-              <ArrowRight size={16} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
-            </button>
+        <div className="bg-[#0E1522] border border-[#E5E3DA]/10 rounded-lg p-6 flex flex-col justify-between">
+          <div>
+            <h2 className="font-display font-bold text-base text-[#FFFFFF] mb-4">
+              CONDUIT SHORTCUTS
+            </h2>
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate('/upload')}
+                className="w-full flex items-center justify-between p-3.5 rounded bg-[#151F2E] border border-[#E5E3DA]/10 hover:border-[#D7FF64]/50 transition-all text-left group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded bg-[#111827] flex items-center justify-center text-[#D7FF64]">
+                    <Upload size={16} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono font-bold text-[#FFFFFF] group-hover:text-[#D7FF64] transition-colors">
+                      UPLOAD ASSET
+                    </div>
+                    <div className="text-[11px] text-[#737373]">Drag-and-drop file ingestion</div>
+                  </div>
+                </div>
+                <ArrowRight size={14} className="text-[#737373] group-hover:text-[#D7FF64] group-hover:translate-x-1 transition-all" />
+              </button>
+
+              <button
+                onClick={() => navigate('/myfiles')}
+                className="w-full flex items-center justify-between p-3.5 rounded bg-[#151F2E] border border-[#E5E3DA]/10 hover:border-[#D7FF64]/50 transition-all text-left group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded bg-[#111827] flex items-center justify-center text-[#F5F3EB]">
+                    <FolderOpen size={16} />
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono font-bold text-[#FFFFFF] group-hover:text-[#D7FF64] transition-colors">
+                      FILE REGISTRY
+                    </div>
+                    <div className="text-[11px] text-[#737373]">Inspect and govern shared files</div>
+                  </div>
+                </div>
+                <ArrowRight size={14} className="text-[#737373] group-hover:text-[#D7FF64] group-hover:translate-x-1 transition-all" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-[#E5E3DA]/10 text-[11px] font-mono text-[#737373]">
+            STATUS: PIPELINE ONLINE
           </div>
         </div>
 
-        {/* Recent Files */}
-        <div className="lg:col-span-2 glass-card p-6 animate-fade-in-up stagger-8">
-          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Clock size={18} className="text-purple-400" />
-            Recent Files
-          </h2>
+        {/* Recent Files High-Density Ledger */}
+        <div className="lg:col-span-2 bg-[#0E1522] border border-[#E5E3DA]/10 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display font-bold text-base text-[#FFFFFF] flex items-center gap-2">
+              <Clock size={16} className="text-[#D7FF64]" />
+              RECENT INGESTED OBJECTS
+            </h2>
+            <button
+              onClick={() => navigate('/myfiles')}
+              className="text-xs font-mono text-[#D7FF64] hover:underline"
+            >
+              VIEW ALL REGISTRY →
+            </button>
+          </div>
 
           {loading ? (
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-16 rounded-xl bg-gray-800/40 animate-shimmer"></div>
+                <div key={i} className="h-14 bg-[#151F2E] rounded animate-shimmer" />
               ))}
             </div>
           ) : recentFiles.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gray-800/40 flex items-center justify-center mb-4">
-                <FolderOpen size={28} className="text-gray-600" />
-              </div>
-              <p className="text-gray-400 font-medium">No files yet</p>
-              <p className="text-gray-500 text-sm mt-1">Upload your first file to get started</p>
+            <div className="text-center py-12 border border-dashed border-[#E5E3DA]/10 rounded">
+              <FolderOpen size={28} className="mx-auto text-[#737373] mb-2" />
+              <p className="text-xs font-mono text-[#FFFFFF]">NO OBJECTS COMMITTED</p>
+              <p className="text-[11px] text-[#737373] mt-1 font-mono">Upload an asset to populate telemetry</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="divide-y divide-[#E5E3DA]/10">
               {recentFiles.map((file) => (
                 <div
                   key={file.id}
-                  className="flex items-center gap-4 p-3.5 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-colors group"
+                  className="flex items-center justify-between py-3 px-2 hover:bg-[#151F2E] rounded transition-colors group"
                 >
-                  <FileIcon filename={file.originalFileName} size={18} className="w-10 h-10 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-200 truncate">{file.originalFileName}</p>
-                    <p className="text-xs text-gray-500">
-                      {fileService.formatFileSize(file.fileSize)} • {fileService.formatDate(file.uploadedAt)}
-                    </p>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FileIcon filename={file.originalFileName} size={16} className="w-8 h-8 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-[#FFFFFF] truncate max-w-xs sm:max-w-md">
+                        {file.originalFileName}
+                      </p>
+                      <p className="text-[10px] font-mono text-[#737373]">
+                        {fileService.formatFileSize(file.fileSize)} • {fileService.formatDate(file.uploadedAt)}
+                      </p>
+                    </div>
                   </div>
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      file.visibility === 'PUBLIC'
-                        ? 'bg-emerald-500/15 text-emerald-400'
-                        : 'bg-amber-500/15 text-amber-400'
-                    }`}
-                  >
-                    {file.visibility}
-                  </span>
-                  {file.shareLink && (
-                    <a
-                      href={file.shareLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 rounded-lg text-gray-500 hover:text-purple-400 hover:bg-purple-500/10 transition-all opacity-0 group-hover:opacity-100"
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase ${
+                        file.visibility === 'PUBLIC'
+                          ? 'bg-[#D7FF64]/10 text-[#D7FF64] border border-[#D7FF64]/30'
+                          : 'bg-[#151F2E] text-[#737373] border border-[#E5E3DA]/15'
+                      }`}
                     >
-                      <ExternalLink size={14} />
-                    </a>
-                  )}
+                      {file.visibility}
+                    </span>
+
+                    {file.shareLink && (
+                      <a
+                        href={file.shareLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1 rounded text-[#737373] hover:text-[#D7FF64] transition-colors"
+                        title="View Public Share"
+                      >
+                        <ExternalLink size={14} />
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
+
       </div>
+
     </div>
   );
 }

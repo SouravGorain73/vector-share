@@ -3,7 +3,6 @@ import fileService from '../services/fileService';
 import FileIcon from '../components/FileIcon';
 import toast from 'react-hot-toast';
 import {
-  FolderOpen,
   FileText,
   Copy,
   Check,
@@ -19,6 +18,8 @@ import {
   CheckSquare,
   Square,
   X,
+  AlertTriangle,
+  FolderGit2,
 } from 'lucide-react';
 
 function MyFiles() {
@@ -33,13 +34,21 @@ function MyFiles() {
   const [filterVisibility, setFilterVisibility] = useState('all');
   const [selectedFiles, setSelectedFiles] = useState(new Set());
   const [showSortMenu, setShowSortMenu] = useState(false);
+  
+  // Custom non-native confirmation modal state
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
 
   const loadFiles = async () => {
     try {
       const data = await fileService.getUserFiles();
       setFiles(data);
     } catch {
-      toast.error('Failed to load files');
+      toast.error('Failed to retrieve file registry');
     } finally {
       setLoading(false);
     }
@@ -50,19 +59,36 @@ function MyFiles() {
     loadFiles();
   }, []);
 
-  const handleDelete = async (fileId) => {
-    if (!confirm('Are you sure you want to delete this file?')) return;
+  const openDeleteDialog = (fileId, fileName) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'EXPUNGE OBJECT FROM VAULT',
+      message: `Are you certain you wish to purge "${fileName}"? This operation cannot be reversed.`,
+      onConfirm: () => executeDelete(fileId),
+    });
+  };
+
+  const executeDelete = async (fileId) => {
+    setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
     setActionLoading(fileId);
     try {
       await fileService.deleteFile(fileId);
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
-      setSelectedFiles((prev) => { const next = new Set(prev); next.delete(fileId); return next; });
-      toast.success('File deleted');
+      setSelectedFiles((prev) => {
+        const next = new Set(prev);
+        next.delete(fileId);
+        return next;
+      });
+      toast.success('Object expunged from vault');
     } catch {
-      toast.error('Failed to delete file');
+      toast.error('Purge operation failed');
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleDelete = (fileId, fileName) => {
+    openDeleteDialog(fileId, fileName || 'this file');
   };
 
   const handleToggleVisibility = async (fileId, currentVisibility) => {
@@ -71,9 +97,9 @@ function MyFiles() {
     try {
       const updated = await fileService.updateVisibility(fileId, newVisibility);
       setFiles((prev) => prev.map((f) => (f.id === fileId ? updated : f)));
-      toast.success(`File set to ${newVisibility.toLowerCase()}`);
+      toast.success(`Access policy switched to ${newVisibility.toLowerCase()}`);
     } catch {
-      toast.error('Failed to update visibility');
+      toast.error('Access policy update failed');
     } finally {
       setActionLoading(null);
     }
@@ -84,9 +110,9 @@ function MyFiles() {
     try {
       const updated = await fileService.regenerateShareLink(fileId);
       setFiles((prev) => prev.map((f) => (f.id === fileId ? updated : f)));
-      toast.success('Share link regenerated');
+      toast.success('Tokenized share link regenerated');
     } catch {
-      toast.error('Failed to regenerate link');
+      toast.error('Link regeneration failed');
     } finally {
       setActionLoading(null);
     }
@@ -96,11 +122,10 @@ function MyFiles() {
     const frontendLink = fileService.getFrontendShareUrl(link);
     navigator.clipboard.writeText(frontendLink);
     setCopiedId(fileId);
-    toast.success('Link copied!');
+    toast.success('Access link copied to clipboard');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Bulk actions
   const toggleSelect = (fileId) => {
     setSelectedFiles((prev) => {
       const next = new Set(prev);
@@ -117,8 +142,17 @@ function MyFiles() {
     }
   };
 
-  const bulkDelete = async () => {
-    if (!confirm(`Delete ${selectedFiles.size} file(s)?`)) return;
+  const openBulkDeleteDialog = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'BULK EXPUNGE OPERATION',
+      message: `Purge ${selectedFiles.size} selected object(s) permanently from the repository?`,
+      onConfirm: executeBulkDelete,
+    });
+  };
+
+  const executeBulkDelete = async () => {
+    setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null });
     const ids = [...selectedFiles];
     for (const id of ids) {
       try {
@@ -127,7 +161,7 @@ function MyFiles() {
       } catch { /* continue */ }
     }
     setSelectedFiles(new Set());
-    toast.success(`Deleted ${ids.length} file(s)`);
+    toast.success(`Expunged ${ids.length} object(s) from vault`);
   };
 
   let processedFiles = files.filter((f) =>
@@ -153,64 +187,70 @@ function MyFiles() {
   const isBulkMode = selectedFiles.size > 0;
 
   return (
-    <div className="page-enter">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="space-y-6 animate-fade-in font-sans">
+      
+      {/* Dossier Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#E5E3DA]/10">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white flex items-center gap-3">
-            <FolderOpen size={28} className="text-purple-400" />
-            My Files
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#D7FF64] mb-1">
+            [REGISTRY // INVENTORY GOVERNANCE]
+          </div>
+          <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-[#FFFFFF] tracking-tight flex items-center gap-3">
+            <FolderGit2 size={26} className="text-[#D7FF64]" />
+            VAULT ASSET REGISTRY
           </h1>
-          <p className="mt-1 text-gray-400">{files.length} file{files.length !== 1 ? 's' : ''} uploaded</p>
+          <p className="mt-1 text-xs text-[#737373] font-mono">
+            {files.length} REPOSITORIED OBJECT{files.length !== 1 ? 'S' : ''} • GRANULAR PROVENANCE AUDIT
+          </p>
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
+      {/* Architectural Filter & Search Toolbar */}
+      <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        <div className="relative flex-1 min-w-[220px] max-w-sm">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#737373]" />
           <input
             type="text"
-            placeholder="Search files..."
+            placeholder="Filter by filename..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-sm text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-[#0E1522] border border-[#E5E3DA]/15 rounded text-xs text-[#FFFFFF] placeholder-[#737373] focus:border-[#D7FF64] focus:ring-1 focus:ring-[#D7FF64] transition-colors"
           />
         </div>
 
-        {/* Visibility Filter */}
-        <div className="flex items-center bg-gray-800/50 border border-gray-700/50 rounded-xl overflow-hidden">
+        {/* Visibility Filter Tabs */}
+        <div className="flex items-center bg-[#0E1522] border border-[#E5E3DA]/15 rounded p-0.5 font-mono text-xs">
           {['all', 'public', 'private'].map((filter) => (
             <button
               key={filter}
               onClick={() => setFilterVisibility(filter)}
-              className={`px-3 py-2.5 text-xs font-medium capitalize transition-colors ${
+              className={`px-3 py-1.5 rounded uppercase tracking-wider text-[11px] transition-colors cursor-pointer ${
                 filterVisibility === filter
-                  ? 'bg-purple-500/20 text-purple-400'
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? 'bg-[#151F2E] text-[#D7FF64] font-bold border border-[#D7FF64]/30'
+                  : 'text-[#737373] hover:text-[#FFFFFF]'
               }`}
             >
-              {filter}
+              [{filter}]
             </button>
           ))}
         </div>
 
-        {/* Sort */}
+        {/* Sort Menu */}
         <div className="relative">
           <button
             onClick={() => setShowSortMenu(!showSortMenu)}
-            className="flex items-center gap-2 px-3 py-2.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-xs text-gray-400 hover:text-gray-300 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-[#0E1522] border border-[#E5E3DA]/15 rounded text-xs font-mono uppercase text-[#737373] hover:text-[#FFFFFF] hover:border-[#D7FF64]/40 transition-colors cursor-pointer"
           >
-            <ArrowUpDown size={14} />
-            Sort
+            <ArrowUpDown size={13} className="text-[#D7FF64]" />
+            <span>Sort: {sortBy} ({sortOrder === 'asc' ? '↑' : '↓'})</span>
           </button>
           {showSortMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 glass-card p-2 z-20 animate-slide-down">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-[#0E1522] border border-[#E5E3DA]/20 rounded-md p-1.5 z-30 shadow-2xl animate-slide-down">
               {[
-                { value: 'date', label: 'Date' },
-                { value: 'name', label: 'Name' },
-                { value: 'size', label: 'Size' },
+                { value: 'date', label: 'Upload Date' },
+                { value: 'name', label: 'File Name' },
+                { value: 'size', label: 'File Size' },
               ].map((opt) => (
                 <button
                   key={opt.value}
@@ -223,8 +263,8 @@ function MyFiles() {
                     }
                     setShowSortMenu(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                    sortBy === opt.value ? 'bg-purple-500/15 text-purple-400' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                  className={`w-full text-left px-3 py-2 rounded text-xs font-mono uppercase transition-colors cursor-pointer ${
+                    sortBy === opt.value ? 'bg-[#151F2E] text-[#D7FF64] font-bold' : 'text-[#737373] hover:text-[#FFFFFF] hover:bg-[#151F2E]'
                   }`}
                 >
                   {opt.label} {sortBy === opt.value && (sortOrder === 'asc' ? '↑' : '↓')}
@@ -234,211 +274,271 @@ function MyFiles() {
           )}
         </div>
 
-        {/* View toggle */}
-        <div className="flex items-center bg-gray-800/50 border border-gray-700/50 rounded-xl overflow-hidden">
+        {/* View Mode Switcher */}
+        <div className="flex items-center bg-[#0E1522] border border-[#E5E3DA]/15 rounded p-0.5">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-purple-500/20 text-purple-400' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`p-1.5 rounded transition-colors cursor-pointer ${
+              viewMode === 'grid' ? 'bg-[#151F2E] text-[#D7FF64]' : 'text-[#737373] hover:text-[#FFFFFF]'
+            }`}
+            title="Grid Specimen View"
           >
-            <LayoutGrid size={16} />
+            <LayoutGrid size={15} />
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-purple-500/20 text-purple-400' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`p-1.5 rounded transition-colors cursor-pointer ${
+              viewMode === 'list' ? 'bg-[#151F2E] text-[#D7FF64]' : 'text-[#737373] hover:text-[#FFFFFF]'
+            }`}
+            title="List Ledger View"
           >
-            <List size={16} />
+            <List size={15} />
           </button>
         </div>
       </div>
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions Floating Dock */}
       {isBulkMode && (
-        <div className="flex items-center gap-4 mb-4 p-3 glass-card animate-slide-down">
-          <button onClick={selectAll} className="flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors">
-            <CheckSquare size={16} />
-            {selectedFiles.size === processedFiles.length ? 'Deselect All' : 'Select All'}
-          </button>
-          <span className="text-sm text-gray-400">{selectedFiles.size} selected</span>
-          <div className="flex-1" />
-          <button
-            onClick={bulkDelete}
-            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium rounded-lg hover:bg-red-500/20 transition-all"
-          >
-            <Trash2 size={14} />
-            Delete
-          </button>
-          <button
-            onClick={() => setSelectedFiles(new Set())}
-            className="p-2 text-gray-500 hover:text-gray-300 transition-colors"
-          >
-            <X size={16} />
-          </button>
+        <div className="flex items-center justify-between p-3.5 bg-[#151F2E] border border-[#D7FF64]/40 rounded-lg animate-slide-down">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={selectAll}
+              className="flex items-center gap-2 text-xs font-mono text-[#D7FF64] hover:underline cursor-pointer"
+            >
+              <CheckSquare size={15} />
+              <span>{selectedFiles.size === processedFiles.length ? 'DESELECT ALL' : 'SELECT ALL'}</span>
+            </button>
+            <span className="text-xs font-mono text-[#737373]">|</span>
+            <span className="text-xs font-mono text-[#FFFFFF] font-bold">
+              [{selectedFiles.size} OBJECTS STAGED]
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={openBulkDeleteDialog}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono font-bold uppercase rounded hover:bg-red-500/20 transition-all cursor-pointer"
+            >
+              <Trash2 size={13} />
+              <span>PURGE SELECTED</span>
+            </button>
+            <button
+              onClick={() => setSelectedFiles(new Set())}
+              className="p-1.5 text-[#737373] hover:text-[#FFFFFF] cursor-pointer"
+            >
+              <X size={15} />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Content */}
+      {/* Main Files View */}
       {loading ? (
         <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : ''}`}>
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-48 rounded-2xl bg-gray-800/30 animate-shimmer"></div>
+            <div key={i} className="h-40 rounded-lg bg-[#0E1522] border border-[#E5E3DA]/10 animate-shimmer" />
           ))}
         </div>
       ) : processedFiles.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="w-20 h-20 mx-auto rounded-2xl bg-gray-800/40 flex items-center justify-center mb-4">
-            <FileText size={36} className="text-gray-600" />
+        <div className="text-center py-20 border border-dashed border-[#E5E3DA]/10 rounded-lg bg-[#0E1522]/30">
+          <div className="w-14 h-14 mx-auto rounded bg-[#151F2E] flex items-center justify-center mb-3 text-[#737373]">
+            <FileText size={26} />
           </div>
-          <h3 className="text-xl font-semibold text-gray-300">
-            {searchQuery || filterVisibility !== 'all' ? 'No files match your filters' : 'No files uploaded yet'}
+          <h3 className="font-display font-bold text-base text-[#FFFFFF]">
+            {searchQuery || filterVisibility !== 'all' ? 'NO MATCHING OBJECTS LOCATED' : 'VAULT EMPTY'}
           </h3>
-          <p className="text-gray-500 mt-2">
-            {searchQuery || filterVisibility !== 'all' ? 'Try adjusting your search or filters' : 'Upload your first file to get started'}
+          <p className="text-xs font-mono text-[#737373] mt-1">
+            {searchQuery || filterVisibility !== 'all' ? 'Modify search query or filter tags' : 'Initiate ingest to populate inventory'}
           </p>
         </div>
       ) : viewMode === 'grid' ? (
-        /* Grid View */
+        /* Architectural Grid View */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {processedFiles.map((file, i) => (
             <div
               key={file.id}
-              className={`file-card glass-card p-5 animate-fade-in-up ${selectedFiles.has(file.id) ? 'file-card-selected' : ''}`}
-              style={{ animationDelay: `${i * 0.05}s`, opacity: 0, animationFillMode: 'forwards' }}
+              className={`p-5 rounded-lg border transition-all duration-200 flex flex-col justify-between ${
+                selectedFiles.has(file.id)
+                  ? 'bg-[#151F2E] border-[#D7FF64] shadow-[0_0_20px_rgba(215,255,100,0.1)]'
+                  : 'bg-[#0E1522] border-[#E5E3DA]/10 hover:border-[#D7FF64]/40'
+              }`}
+              style={{ animationDelay: `${i * 0.04}s` }}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); toggleSelect(file.id); }}
-                    className="text-gray-600 hover:text-purple-400 transition-colors"
-                  >
-                    {selectedFiles.has(file.id) ? <CheckSquare size={18} className="text-purple-400" /> : <Square size={18} />}
-                  </button>
-                  <FileIcon filename={file.originalFileName} size={20} className="w-10 h-10" />
-                </div>
-                <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-semibold ${file.visibility === 'PUBLIC'
-                      ? 'bg-emerald-500/15 text-emerald-400'
-                      : 'bg-amber-500/15 text-amber-400'
+              <div>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleSelect(file.id); }}
+                      className="text-[#737373] hover:text-[#D7FF64] transition-colors cursor-pointer"
+                    >
+                      {selectedFiles.has(file.id) ? (
+                        <CheckSquare size={16} className="text-[#D7FF64]" />
+                      ) : (
+                        <Square size={16} />
+                      )}
+                    </button>
+                    <FileIcon filename={file.originalFileName} size={18} className="w-8 h-8" />
+                  </div>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold uppercase ${
+                      file.visibility === 'PUBLIC'
+                        ? 'bg-[#D7FF64]/10 text-[#D7FF64] border border-[#D7FF64]/30'
+                        : 'bg-[#151F2E] text-[#737373] border border-[#E5E3DA]/15'
                     }`}
-                >
-                  {file.visibility}
-                </span>
+                  >
+                    {file.visibility}
+                  </span>
+                </div>
+
+                <h3 className="text-xs font-bold text-[#FFFFFF] truncate mb-1" title={file.originalFileName}>
+                  {file.originalFileName}
+                </h3>
+                <div className="flex items-center gap-2 text-[10px] font-mono text-[#737373] mb-4">
+                  <span>{fileService.formatFileSize(file.fileSize)}</span>
+                  <span>•</span>
+                  <span>{fileService.formatDate(file.uploadedAt)}</span>
+                </div>
               </div>
 
-              <h3 className="text-sm font-semibold text-white truncate mb-1" title={file.originalFileName}>
-                {file.originalFileName}
-              </h3>
-              <div className="flex items-center gap-3 text-xs text-gray-500 mb-4">
-                <span>{fileService.formatFileSize(file.fileSize)}</span>
-                <span>•</span>
-                <span>{fileService.formatDate(file.uploadedAt)}</span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1.5 pt-3 border-t border-gray-800/50">
+              {/* Action Toolbar */}
+              <div className="flex items-center gap-1 pt-3 border-t border-[#E5E3DA]/10">
                 {file.shareLink && (
                   <button
                     onClick={() => copyShareLink(file.id, file.shareLink)}
-                    className="p-2 rounded-lg text-gray-500 hover:text-purple-400 hover:bg-purple-500/10 transition-all"
-                    title="Copy share link"
+                    className="p-1.5 rounded text-[#737373] hover:text-[#D7FF64] hover:bg-[#151F2E] transition-colors cursor-pointer"
+                    title="Copy tokenized link"
                   >
-                    {copiedId === file.id ? <Check size={15} /> : <Copy size={15} />}
+                    {copiedId === file.id ? <Check size={14} className="text-[#D7FF64]" /> : <Copy size={14} />}
                   </button>
                 )}
                 <button
                   onClick={() => handleToggleVisibility(file.id, file.visibility)}
                   disabled={actionLoading === file.id}
-                  className="p-2 rounded-lg text-gray-500 hover:text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-40"
-                  title="Toggle visibility"
+                  className="p-1.5 rounded text-[#737373] hover:text-[#FFFFFF] hover:bg-[#151F2E] transition-colors disabled:opacity-40 cursor-pointer"
+                  title="Toggle access policy"
                 >
-                  {file.visibility === 'PUBLIC' ? <EyeOff size={15} /> : <Eye size={15} />}
+                  {file.visibility === 'PUBLIC' ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
                 <button
                   onClick={() => handleRegenerateLink(file.id)}
                   disabled={actionLoading === file.id}
-                  className="p-2 rounded-lg text-gray-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all disabled:opacity-40"
-                  title="Regenerate share link"
+                  className="p-1.5 rounded text-[#737373] hover:text-[#D7FF64] hover:bg-[#151F2E] transition-colors disabled:opacity-40 cursor-pointer"
+                  title="Regenerate token URL"
                 >
-                  <RefreshCw size={15} className={actionLoading === file.id ? 'animate-spin' : ''} />
+                  <RefreshCw size={14} className={actionLoading === file.id ? 'animate-spin' : ''} />
                 </button>
                 {file.shareLink && (
                   <a
                     href={fileService.getFrontendShareUrl(file.shareLink)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg text-gray-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all"
-                    title="Open share link"
+                    className="p-1.5 rounded text-[#737373] hover:text-[#D7FF64] hover:bg-[#151F2E] transition-colors"
+                    title="Open share view in new tab"
                   >
-                    <ExternalLink size={15} />
+                    <ExternalLink size={14} />
                   </a>
                 )}
                 <div className="flex-1" />
                 <button
-                  onClick={() => handleDelete(file.id)}
+                  onClick={() => handleDelete(file.id, file.originalFileName)}
                   disabled={actionLoading === file.id}
-                  className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40"
-                  title="Delete file"
+                  className="p-1.5 rounded text-[#737373] hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40 cursor-pointer"
+                  title="Purge object"
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        /* List View */
-        <div className="glass-card overflow-hidden">
+        /* High-Density Tabular Ledger View */
+        <div className="bg-[#0E1522] border border-[#E5E3DA]/10 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-left text-xs font-sans">
               <thead>
-                <tr className="border-b border-gray-800/50">
-                  <th className="text-left px-5 py-4 w-10">
-                    <button onClick={selectAll} className="text-gray-500 hover:text-purple-400 transition-colors">
-                      {selectedFiles.size === processedFiles.length && processedFiles.length > 0 ? <CheckSquare size={16} /> : <Square size={16} />}
+                <tr className="border-b border-[#E5E3DA]/10 bg-[#111827] text-[11px] font-mono uppercase text-[#737373]">
+                  <th className="px-4 py-3 w-10">
+                    <button onClick={selectAll} className="text-[#737373] hover:text-[#D7FF64] cursor-pointer">
+                      {selectedFiles.size === processedFiles.length && processedFiles.length > 0 ? (
+                        <CheckSquare size={15} className="text-[#D7FF64]" />
+                      ) : (
+                        <Square size={15} />
+                      )}
                     </button>
                   </th>
-                  <th className="text-left px-5 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">File</th>
-                  <th className="text-left px-5 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Size</th>
-                  <th className="text-left px-5 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Visibility</th>
-                  <th className="text-left px-5 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Uploaded</th>
-                  <th className="text-right px-5 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
+                  <th className="px-4 py-3">SPECIMEN</th>
+                  <th className="px-4 py-3">SIZE</th>
+                  <th className="px-4 py-3">POLICY</th>
+                  <th className="px-4 py-3">INGESTED</th>
+                  <th className="px-4 py-3 text-right">ACTIONS</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-[#E5E3DA]/5 font-mono">
                 {processedFiles.map((file) => (
-                  <tr key={file.id} className={`border-b border-gray-800/30 hover:bg-gray-800/20 transition-colors ${selectedFiles.has(file.id) ? 'bg-purple-500/5' : ''}`}>
-                    <td className="px-5 py-4">
-                      <button onClick={() => toggleSelect(file.id)} className="text-gray-500 hover:text-purple-400 transition-colors">
-                        {selectedFiles.has(file.id) ? <CheckSquare size={16} className="text-purple-400" /> : <Square size={16} />}
+                  <tr
+                    key={file.id}
+                    className={`hover:bg-[#151F2E] transition-colors ${
+                      selectedFiles.has(file.id) ? 'bg-[#151F2E]' : ''
+                    }`}
+                  >
+                    <td className="px-4 py-3">
+                      <button onClick={() => toggleSelect(file.id)} className="text-[#737373] hover:text-[#D7FF64] cursor-pointer">
+                        {selectedFiles.has(file.id) ? <CheckSquare size={15} className="text-[#D7FF64]" /> : <Square size={15} />}
                       </button>
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <FileIcon filename={file.originalFileName} size={16} className="w-8 h-8 shrink-0" />
-                        <span className="text-sm text-white font-medium truncate max-w-xs">{file.originalFileName}</span>
+                        <FileIcon filename={file.originalFileName} size={16} className="w-7 h-7 shrink-0" />
+                        <span className="text-xs font-bold text-[#FFFFFF] truncate max-w-xs">{file.originalFileName}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-400">{fileService.formatFileSize(file.fileSize)}</td>
-                    <td className="px-5 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${file.visibility === 'PUBLIC' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'
-                        }`}>
+                    <td className="px-4 py-3 text-[#737373]">{fileService.formatFileSize(file.fileSize)}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
+                          file.visibility === 'PUBLIC'
+                            ? 'bg-[#D7FF64]/10 text-[#D7FF64] border border-[#D7FF64]/30'
+                            : 'bg-[#151F2E] text-[#737373] border border-[#E5E3DA]/15'
+                        }`}
+                      >
                         {file.visibility}
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-sm text-gray-400">{fileService.formatDate(file.uploadedAt)}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3 text-[#737373]">{fileService.formatDate(file.uploadedAt)}</td>
+                    <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         {file.shareLink && (
-                          <button onClick={() => copyShareLink(file.id, file.shareLink)} className="p-2 rounded-lg text-gray-500 hover:text-purple-400 hover:bg-purple-500/10 transition-all" title="Copy link">
-                            {copiedId === file.id ? <Check size={14} /> : <Copy size={14} />}
+                          <button
+                            onClick={() => copyShareLink(file.id, file.shareLink)}
+                            className="p-1.5 rounded text-[#737373] hover:text-[#D7FF64] transition-colors cursor-pointer"
+                            title="Copy link"
+                          >
+                            {copiedId === file.id ? <Check size={14} className="text-[#D7FF64]" /> : <Copy size={14} />}
                           </button>
                         )}
-                        <button onClick={() => handleToggleVisibility(file.id, file.visibility)} disabled={actionLoading === file.id} className="p-2 rounded-lg text-gray-500 hover:text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-40" title="Toggle">
+                        <button
+                          onClick={() => handleToggleVisibility(file.id, file.visibility)}
+                          disabled={actionLoading === file.id}
+                          className="p-1.5 rounded text-[#737373] hover:text-[#FFFFFF] transition-colors disabled:opacity-40 cursor-pointer"
+                          title="Toggle policy"
+                        >
                           {file.visibility === 'PUBLIC' ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
-                        <button onClick={() => handleRegenerateLink(file.id)} disabled={actionLoading === file.id} className="p-2 rounded-lg text-gray-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all disabled:opacity-40" title="Regenerate">
+                        <button
+                          onClick={() => handleRegenerateLink(file.id)}
+                          disabled={actionLoading === file.id}
+                          className="p-1.5 rounded text-[#737373] hover:text-[#D7FF64] transition-colors disabled:opacity-40 cursor-pointer"
+                          title="Regenerate token"
+                        >
                           <RefreshCw size={14} className={actionLoading === file.id ? 'animate-spin' : ''} />
                         </button>
-                        <button onClick={() => handleDelete(file.id)} disabled={actionLoading === file.id} className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40" title="Delete">
+                        <button
+                          onClick={() => handleDelete(file.id, file.originalFileName)}
+                          disabled={actionLoading === file.id}
+                          className="p-1.5 rounded text-[#737373] hover:text-red-400 transition-colors disabled:opacity-40 cursor-pointer"
+                          title="Purge"
+                        >
                           <Trash2 size={14} />
                         </button>
                       </div>
@@ -451,8 +551,39 @@ function MyFiles() {
         </div>
       )}
 
+      {/* Custom Non-Native Confirmation Modal */}
+      {confirmDialog.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#0E1522] border border-[#E5E3DA]/20 rounded-lg max-w-md w-full p-6 shadow-2xl animate-scale-in">
+            <div className="flex items-center gap-3 text-red-400 mb-3">
+              <AlertTriangle size={20} />
+              <h3 className="font-display font-extrabold text-sm tracking-wider uppercase text-[#FFFFFF]">
+                {confirmDialog.title}
+              </h3>
+            </div>
+            <p className="text-xs text-[#737373] font-mono leading-relaxed mb-6">
+              {confirmDialog.message}
+            </p>
+            <div className="flex items-center justify-end gap-3 font-mono text-xs">
+              <button
+                onClick={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: null })}
+                className="px-4 py-2 bg-[#151F2E] hover:bg-[#1E2B3E] text-[#F5F3EB] rounded transition-colors cursor-pointer"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 font-bold rounded transition-colors cursor-pointer"
+              >
+                CONFIRM EXPUNGE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Click outside to close sort menu */}
-      {showSortMenu && <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />}
+      {showSortMenu && <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />}
     </div>
   );
 }

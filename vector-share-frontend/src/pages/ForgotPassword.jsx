@@ -21,11 +21,11 @@ function ForgotPassword() {
     setIsLoading(true);
     try {
       await authService.sendPasswordResetOtp(email);
-      toast.success('Reset code sent to your email!');
+      toast.success('Recovery token dispatched to your email');
       setStep(2);
     } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data || 'Failed to send reset code';
-      setError(typeof msg === 'string' ? msg : 'Failed to send reset code');
+      const msg = err.response?.data?.message || err.response?.data || 'Failed to dispatch recovery code';
+      setError(typeof msg === 'string' ? msg : 'Failed to dispatch recovery code');
     } finally {
       setIsLoading(false);
     }
@@ -37,11 +37,11 @@ function ForgotPassword() {
     setIsLoading(true);
     try {
       await authService.verifyOtp(email, otp);
-      toast.success('Code verified!');
+      toast.success('Recovery code validated');
       setStep(3);
     } catch (err) {
-      const msg = err.response?.data?.message || err.response?.data || 'Invalid code';
-      setError(typeof msg === 'string' ? msg : 'Invalid code');
+      const msg = err.response?.data?.message || err.response?.data || 'Invalid recovery code';
+      setError(typeof msg === 'string' ? msg : 'Invalid recovery code');
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +64,7 @@ function ForgotPassword() {
     setIsLoading(true);
     try {
       await authService.resetPassword(email, newPassword);
-      toast.success('Password reset successfully! Please login.');
+      toast.success('Master password reset complete. Please authenticate.');
       navigate('/login');
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data || 'Failed to reset password';
@@ -74,53 +74,55 @@ function ForgotPassword() {
     }
   };
 
-  const stepIndicator = (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {[1, 2, 3].map((s) => (
-        <div key={s} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-            step >= s
-              ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/25'
-              : 'bg-gray-800/60 text-gray-500 border border-gray-700/50'
-          }`}>
-            {s}
-          </div>
-          {s < 3 && (
-            <div className={`w-8 h-0.5 rounded-full transition-all duration-300 ${
-              step > s ? 'bg-purple-500' : 'bg-gray-700/50'
-            }`} />
-          )}
-        </div>
-      ))}
-    </div>
-  );
+  const stepLabels = {
+    1: '01 / 03 — RECOVERY IDENTITY',
+    2: '02 / 03 — OTP VERIFICATION',
+    3: '03 / 03 — NEW CREDENTIALS',
+  };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-orb"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] animate-orb-2"></div>
-      </div>
-
-      <div className="w-full max-w-md relative z-10 animate-fade-in-up py-8">
+    <div className="min-h-screen bg-[#111827] text-[#F5F3EB] flex items-center justify-center px-4 py-12 relative overflow-hidden bg-grid-technical font-sans">
+      <div className="w-full max-w-md relative z-10 animate-fade-in-up">
+        
+        {/* Brand Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/25 mb-4">
-            <Share2 size={28} className="text-white" />
+          <Link to="/" className="inline-flex items-center justify-center w-12 h-12 rounded bg-[#151F2E] border border-[#D7FF64]/40 text-[#D7FF64] mb-3 hover:border-[#D7FF64] transition-colors">
+            <Share2 size={22} />
+          </Link>
+          <div className="text-[11px] font-mono uppercase tracking-widest text-[#737373]">
+            [SECURITY // RECOVERY]
           </div>
-          <h1 className="text-3xl font-bold text-white">Reset password</h1>
-          <p className="mt-2 text-gray-400">
-            {step === 1 && "Enter your email to receive a reset code"}
-            {step === 2 && "Enter the code sent to your email"}
-            {step === 3 && "Choose a new password"}
+          <h1 className="font-display font-extrabold text-3xl text-[#FFFFFF] tracking-tight mt-1">
+            KEY RECOVERY
+          </h1>
+          <p className="mt-1 text-xs text-[#737373]">
+            {step === 1 && "Submit verified email for cryptographic challenge"}
+            {step === 2 && "Enter 6-digit challenge token dispatched to email"}
+            {step === 3 && "Configure new master vault credentials"}
           </p>
         </div>
 
-        {stepIndicator}
+        {/* Monospaced Step Ledger */}
+        <div className="mb-6 p-3 bg-[#0E1522] border border-[#E5E3DA]/10 rounded flex items-center justify-between text-xs font-mono">
+          <span className="text-[#D7FF64] font-bold">{stepLabels[step]}</span>
+          <div className="flex gap-1.5">
+            {[1, 2, 3].map((s) => (
+              <span
+                key={s}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  step === s ? 'bg-[#D7FF64] ring-2 ring-[#D7FF64]/30' : step > s ? 'bg-[#D7FF64]/50' : 'bg-[#151F2E]'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
 
-        <div className="glass-card p-8">
+        {/* Form Card */}
+        <div className="bg-[#0E1522] border border-[#E5E3DA]/15 rounded-lg p-8 shadow-2xl">
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-5">
-              {error}
+            <div className="p-3 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-mono mb-5 flex items-center gap-2">
+              <span>⚠</span>
+              <span>{error}</span>
             </div>
           )}
 
@@ -128,31 +130,33 @@ function ForgotPassword() {
           {step === 1 && (
             <form onSubmit={handleSendOtp} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Email address</label>
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#737373] mb-2">
+                  Vault Email Address
+                </label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]" />
                   <input
                     id="forgot-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
+                    placeholder="name@company.com"
                     required
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                    className="w-full pl-10 pr-4 py-3 bg-[#151F2E] border border-[#E5E3DA]/15 rounded text-sm text-[#FFFFFF] placeholder-[#737373] focus:border-[#D7FF64] focus:ring-1 focus:ring-[#D7FF64] transition-colors"
                   />
                 </div>
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-6 bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider rounded transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-6"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-[#111827]/30 border-t-[#111827] rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    Send Reset Code
-                    <Mail size={18} />
+                    <span>Dispatch Reset Challenge</span>
+                    <Mail size={15} />
                   </>
                 )}
               </button>
@@ -162,68 +166,74 @@ function ForgotPassword() {
           {/* Step 2: OTP */}
           {step === 2 && (
             <form onSubmit={handleVerifyOtp} className="space-y-5">
-              <div className="text-center mb-2">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 mb-3">
-                  <ShieldCheck size={28} className="text-purple-400" />
+              <div className="text-center mb-4 p-4 bg-[#111827] border border-[#E5E3DA]/10 rounded">
+                <div className="w-10 h-10 rounded mx-auto bg-[#151F2E] border border-[#D7FF64]/40 flex items-center justify-center text-[#D7FF64] mb-2">
+                  <ShieldCheck size={20} />
                 </div>
-                <p className="text-gray-400 text-sm">
-                  Code sent to <span className="text-purple-400 font-medium">{email}</span>
+                <p className="text-xs text-[#737373] font-mono">
+                  CHALLENGE DISPATCHED TO: <span className="text-[#FFFFFF]">{email}</span>
                 </p>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Reset Code</label>
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#737373] mb-2 text-center">
+                  6-Digit Challenge Token
+                </label>
                 <div className="relative">
-                  <KeyRound size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]" />
                   <input
                     id="forgot-otp"
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Enter 6-digit code"
+                    placeholder="000000"
                     required
                     maxLength={6}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 text-center text-lg tracking-widest font-mono"
+                    className="w-full pl-10 pr-4 py-3 bg-[#151F2E] border border-[#E5E3DA]/15 rounded text-center text-lg tracking-widest font-mono text-[#FFFFFF] placeholder-[#737373] focus:border-[#D7FF64] focus:ring-1 focus:ring-[#D7FF64] transition-colors"
                   />
                 </div>
               </div>
+
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-6 bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider rounded transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-[#111827]/30 border-t-[#111827] rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    Verify Code
-                    <ShieldCheck size={18} />
+                    <span>Authorize Challenge</span>
+                    <ShieldCheck size={15} />
                   </>
                 )}
               </button>
               <button
                 type="button"
                 onClick={() => { setStep(1); setOtp(''); setError(''); }}
-                className="w-full text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                className="w-full text-xs font-mono text-[#737373] hover:text-[#FFFFFF] transition-colors text-center"
               >
-                ← Change email address
+                ← RE-ENTER IDENTITY
               </button>
             </form>
           )}
 
           {/* Step 3: New Password */}
           {step === 3 && (
-            <form onSubmit={handleResetPassword} className="space-y-5">
-              <div className="text-center mb-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-                  <ShieldCheck size={14} />
-                  Verified: {email}
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="text-center mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#151F2E] border border-[#D7FF64]/30 text-[#D7FF64] text-xs font-mono">
+                  <ShieldCheck size={13} />
+                  RECOVERY VERIFIED: {email}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">New password</label>
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#737373] mb-1.5">
+                  New Master Password
+                </label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]" />
                   <input
                     id="forgot-new-password"
                     type={showPassword ? 'text' : 'password'}
@@ -232,22 +242,24 @@ function ForgotPassword() {
                     placeholder="Min. 6 characters"
                     required
                     minLength={6}
-                    className="w-full pl-12 pr-12 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                    className="w-full pl-10 pr-11 py-2.5 bg-[#151F2E] border border-[#E5E3DA]/15 rounded text-sm text-[#FFFFFF] placeholder-[#737373] focus:border-[#D7FF64] transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#FFFFFF] transition-colors"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Confirm new password</label>
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#737373] mb-1.5">
+                  Confirm Master Password
+                </label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]" />
                   <input
                     id="forgot-confirm-password"
                     type={showPassword ? 'text' : 'password'}
@@ -256,40 +268,35 @@ function ForgotPassword() {
                     placeholder="Repeat new password"
                     required
                     minLength={6}
-                    className={`w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 ${
-                      confirmPassword && confirmPassword !== newPassword
-                        ? 'border-red-500/50'
-                        : confirmPassword && confirmPassword === newPassword
-                          ? 'border-emerald-500/50'
-                          : 'border-gray-700/50'
-                    }`}
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#151F2E] border border-[#E5E3DA]/15 rounded text-sm text-[#FFFFFF] placeholder-[#737373] focus:border-[#D7FF64] transition-colors"
                   />
                 </div>
                 {confirmPassword && confirmPassword !== newPassword && (
-                  <p className="text-xs text-red-400 mt-1.5">Passwords don&apos;t match</p>
+                  <p className="text-xs font-mono text-red-400 mt-1">Passwords do not match</p>
                 )}
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-6 bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider rounded transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-4"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-[#111827]/30 border-t-[#111827] rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    Reset Password
-                    <ArrowRight size={18} />
+                    <span>Commit New Password</span>
+                    <ArrowRight size={15} />
                   </>
                 )}
               </button>
             </form>
           )}
 
-          <div className="mt-6 text-center">
-            <Link to="/login" className="text-purple-400 hover:text-purple-300 text-sm font-semibold transition-colors">
-              ← Back to login
+          {/* Login link */}
+          <div className="mt-6 pt-5 border-t border-[#E5E3DA]/10 text-center">
+            <Link to="/login" className="text-xs font-mono text-[#D7FF64] hover:underline">
+              ← RETURN TO AUTHENTICATION
             </Link>
           </div>
         </div>

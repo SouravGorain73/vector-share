@@ -1,15 +1,17 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import fileService from '../services/fileService';
 import FileIcon from '../components/FileIcon';
 import toast from 'react-hot-toast';
 import {
   Upload as UploadIcon,
-  CloudUpload,
   Globe,
   Lock,
   Check,
   Copy,
   X,
+  FileUp,
+  ShieldCheck,
+  HardDrive,
 } from 'lucide-react';
 
 function Upload() {
@@ -51,14 +53,13 @@ function Upload() {
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error('Please select a file first');
+      toast.error('Select a target file to ingest');
       return;
     }
 
     setUploading(true);
     setUploadProgress(0);
 
-    // Simulate progress since axios doesn't give us real progress easily with interceptors
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 90) {
@@ -67,19 +68,19 @@ function Upload() {
         }
         return prev + Math.random() * 15;
       });
-    }, 200);
+    }, 180);
 
     try {
       const result = await fileService.uploadFile(file, visibility);
       clearInterval(progressInterval);
       setUploadProgress(100);
       setUploadResult(result);
-      toast.success('File uploaded successfully!');
+      toast.success('Asset committed to encrypted vault');
     } catch (err) {
       clearInterval(progressInterval);
       setUploadProgress(0);
-      const msg = err.response?.data?.message || 'Upload failed';
-      toast.error(msg);
+      const msg = err.response?.data?.message || 'Ingest transmission interrupted';
+      toast.error(typeof msg === 'string' ? msg : 'Ingest transmission interrupted');
     } finally {
       setUploading(false);
     }
@@ -90,7 +91,7 @@ function Upload() {
       const frontendLink = fileService.getFrontendShareUrl(uploadResult.shareLink);
       navigator.clipboard.writeText(frontendLink);
       setCopied(true);
-      toast.success('Link copied to clipboard!');
+      toast.success('Tokenized share URL copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -103,35 +104,57 @@ function Upload() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // Image preview
-  const isImage = file?.type?.startsWith('image/');
-  const previewUrl = isImage ? URL.createObjectURL(file) : null;
+  const [previewUrl, setPreviewUrl] = useState(null);
+
+  useEffect(() => {
+    if (file && file.type?.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPreviewUrl(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [file]);
+
+  const isImage = Boolean(file?.type?.startsWith('image/'));
 
   return (
-    <div className="page-enter max-w-2xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white flex items-center gap-3">
-          <UploadIcon size={28} className="text-purple-400" />
-          Upload File
+    <div className="max-w-2xl mx-auto space-y-8 animate-fade-in font-sans">
+      
+      {/* Dossier Header */}
+      <div className="pb-6 border-b border-[#E5E3DA]/10">
+        <div className="text-[11px] font-mono uppercase tracking-widest text-[#D7FF64] mb-1">
+          [CONDUIT // ASSET INGESTION]
+        </div>
+        <h1 className="font-display font-extrabold text-2xl lg:text-3xl text-[#FFFFFF] tracking-tight flex items-center gap-3">
+          <UploadIcon size={26} className="text-[#D7FF64]" />
+          INGEST NEW SPECIMEN
         </h1>
-        <p className="mt-1 text-gray-400">Share your files securely with anyone</p>
+        <p className="mt-1 text-xs text-[#737373] font-mono">
+          DIRECT TLS ENCRYPTED PIPE • MAXIMUM OBJECT SIZE: 50MB
+        </p>
       </div>
 
       {!uploadResult ? (
-        <div className="glass-card p-8 animate-fade-in-up">
-          {/* Dropzone */}
+        <div className="bg-[#0E1522] border border-[#E5E3DA]/15 rounded-lg p-6 sm:p-8 shadow-2xl">
+          
+          {/* Tactile Drag & Drop Canvas */}
           <div
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300
-              ${dragActive
-                ? 'border-purple-500 bg-purple-500/5'
-                : file
-                  ? 'border-emerald-500/50 bg-emerald-500/5'
-                  : 'border-gray-700/50 hover:border-purple-500/30 hover:bg-gray-800/30'
+            className={`relative border-2 border-dashed rounded-lg p-10 sm:p-14 text-center cursor-pointer transition-all duration-200
+              ${
+                dragActive
+                  ? 'border-[#D7FF64] bg-[#D7FF64]/5 shadow-[0_0_30px_rgba(215,255,100,0.12)]'
+                  : file
+                    ? 'border-[#D7FF64]/50 bg-[#151F2E]'
+                    : 'border-[#E5E3DA]/20 bg-[#111827] hover:border-[#D7FF64]/50 hover:bg-[#151F2E]'
               }`}
           >
             <input
@@ -145,81 +168,112 @@ function Upload() {
             {file ? (
               <div className="space-y-4">
                 {isImage && previewUrl ? (
-                  <div className="w-24 h-24 mx-auto rounded-xl overflow-hidden border border-gray-700/50">
+                  <div className="w-24 h-24 mx-auto rounded overflow-hidden border border-[#D7FF64]/40 shadow-md">
                     <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                   </div>
                 ) : (
-                  <FileIcon filename={file.name} size={30} className="w-16 h-16 mx-auto" />
+                  <div className="w-16 h-16 mx-auto rounded bg-[#111827] border border-[#E5E3DA]/20 flex items-center justify-center">
+                    <FileIcon filename={file.name} size={28} />
+                  </div>
                 )}
                 <div>
-                  <p className="text-white font-semibold text-lg">{file.name}</p>
-                  <p className="text-gray-400 text-sm mt-1">{fileService.formatFileSize(file.size)}</p>
+                  <p className="text-sm font-bold text-[#FFFFFF] truncate max-w-md mx-auto">{file.name}</p>
+                  <p className="text-xs font-mono text-[#D7FF64] mt-1">
+                    {fileService.formatFileSize(file.size)}
+                  </p>
+                  <p className="text-[10px] font-mono text-[#737373] mt-0.5">
+                    MIME: {file.type || 'BINARY/OCTET-STREAM'}
+                  </p>
                 </div>
                 <button
+                  type="button"
                   onClick={(e) => { e.stopPropagation(); resetUpload(); }}
-                  className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-red-400 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-red-500/10 border border-red-500/30 text-xs font-mono text-red-400 hover:bg-red-500/20 transition-colors"
                 >
-                  <X size={14} />
-                  Remove
+                  <X size={13} />
+                  CLEAR SPECIMEN
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="w-20 h-20 mx-auto rounded-2xl bg-gray-800/60 flex items-center justify-center animate-float">
-                  <CloudUpload size={36} className="text-purple-400" />
+                <div className="w-14 h-14 mx-auto rounded bg-[#151F2E] border border-[#D7FF64]/30 flex items-center justify-center text-[#D7FF64]">
+                  <FileUp size={28} />
                 </div>
                 <div>
-                  <p className="text-white font-semibold text-lg">Drop your file here</p>
-                  <p className="text-gray-500 text-sm mt-1">or click to browse from your computer</p>
-                  <p className="text-gray-600 text-xs mt-2">Max file size: 50MB</p>
+                  <p className="font-display font-bold text-base text-[#FFFFFF]">
+                    DRAG SPECIMEN INTO VAULT
+                  </p>
+                  <p className="text-xs font-mono text-[#737373] mt-1">
+                    or click to trigger system file browser
+                  </p>
+                  <div className="mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#151F2E] text-[10px] font-mono text-[#737373]">
+                    <HardDrive size={12} className="text-[#D7FF64]" />
+                    <span>CEILING: 50 MB ALLOTMENT</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Visibility */}
+          {/* Visibility Protocol Switcher */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-300 mb-3">File Visibility</label>
+            <label className="block text-xs font-mono uppercase tracking-wider text-[#737373] mb-3">
+              ACCESS VISIBILITY POLICY
+            </label>
             <div className="grid grid-cols-2 gap-3">
               <button
+                type="button"
                 onClick={() => setVisibility('PUBLIC')}
-                className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-200 ${
+                className={`flex items-center gap-3 p-3.5 rounded border transition-all text-left cursor-pointer ${
                   visibility === 'PUBLIC'
-                    ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
-                    : 'border-gray-700/50 bg-gray-800/30 text-gray-400 hover:border-gray-600/50'
+                    ? 'border-[#D7FF64] bg-[#151F2E] text-[#FFFFFF]'
+                    : 'border-[#E5E3DA]/10 bg-[#111827] text-[#737373] hover:border-[#E5E3DA]/20'
                 }`}
               >
-                <Globe size={20} />
-                <div className="text-left">
-                  <p className="font-semibold text-sm">Public</p>
-                  <p className="text-xs opacity-70">Anyone with link</p>
+                <div className={`w-8 h-8 rounded flex items-center justify-center ${
+                  visibility === 'PUBLIC' ? 'bg-[#D7FF64]/10 text-[#D7FF64]' : 'bg-[#151F2E] text-[#737373]'
+                }`}>
+                  <Globe size={16} />
+                </div>
+                <div>
+                  <p className="font-mono text-xs font-bold uppercase">PUBLIC DISPATCH</p>
+                  <p className="text-[11px] text-[#737373]">Accessible via token URL</p>
                 </div>
               </button>
+
               <button
+                type="button"
                 onClick={() => setVisibility('PRIVATE')}
-                className={`flex items-center gap-3 p-4 rounded-xl border transition-all duration-200 ${
+                className={`flex items-center gap-3 p-3.5 rounded border transition-all text-left cursor-pointer ${
                   visibility === 'PRIVATE'
-                    ? 'border-amber-500/50 bg-amber-500/10 text-amber-400'
-                    : 'border-gray-700/50 bg-gray-800/30 text-gray-400 hover:border-gray-600/50'
+                    ? 'border-[#D7FF64] bg-[#151F2E] text-[#FFFFFF]'
+                    : 'border-[#E5E3DA]/10 bg-[#111827] text-[#737373] hover:border-[#E5E3DA]/20'
                 }`}
               >
-                <Lock size={20} />
-                <div className="text-left">
-                  <p className="font-semibold text-sm">Private</p>
-                  <p className="text-xs opacity-70">Only you</p>
+                <div className={`w-8 h-8 rounded flex items-center justify-center ${
+                  visibility === 'PRIVATE' ? 'bg-[#D7FF64]/10 text-[#D7FF64]' : 'bg-[#151F2E] text-[#737373]'
+                }`}>
+                  <Lock size={16} />
+                </div>
+                <div>
+                  <p className="font-mono text-xs font-bold uppercase">PRIVATE ENCLAVE</p>
+                  <p className="text-[11px] text-[#737373]">Account authorization only</p>
                 </div>
               </button>
             </div>
           </div>
 
-          {/* Progress Bar */}
+          {/* Progress Bar with Electric Lime Accent */}
           {uploading && (
-            <div className="mt-6">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-400">Uploading...</span>
-                <span className="text-purple-400 font-medium">{Math.round(uploadProgress)}%</span>
+            <div className="mt-6 p-4 bg-[#111827] border border-[#E5E3DA]/10 rounded">
+              <div className="flex justify-between text-xs font-mono mb-2">
+                <span className="text-[#737373] flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#D7FF64] animate-pulse"></span>
+                  TRANSMITTING TO VAULT...
+                </span>
+                <span className="text-[#D7FF64] font-bold">{Math.round(uploadProgress)}%</span>
               </div>
-              <div className="w-full h-2 bg-gray-800/60 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-[#151F2E] rounded-full overflow-hidden">
                 <div
                   className="progress-bar h-full"
                   style={{ width: `${uploadProgress}%` }}
@@ -228,87 +282,107 @@ function Upload() {
             </div>
           )}
 
-          {/* Upload Button */}
+          {/* Ingest Action CTA */}
           <button
             id="upload-submit"
+            type="button"
             onClick={handleUpload}
             disabled={!file || uploading}
-            className="w-full mt-6 py-4 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full mt-6 py-4 px-6 bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider rounded transition-all duration-200 shadow-md disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             {uploading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Uploading...
+                <div className="w-4 h-4 border-2 border-[#111827]/30 border-t-[#111827] rounded-full animate-spin"></div>
+                <span>COMMITTING TO STORAGE PIPE...</span>
               </>
             ) : (
               <>
-                <UploadIcon size={18} />
-                Upload File
+                <UploadIcon size={16} />
+                <span>EXECUTE VAULT INGESTION</span>
               </>
             )}
           </button>
         </div>
       ) : (
-        /* Success state */
-        <div className="glass-card p-8 animate-scale-in">
-          <div className="text-center space-y-4">
-            <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/15 flex items-center justify-center animate-pulse-glow">
-              <Check size={36} className="text-emerald-400" />
+        /* Minimalist Success Panel */
+        <div className="bg-[#0E1522] border border-[#D7FF64]/40 rounded-lg p-8 shadow-2xl animate-scale-in">
+          <div className="text-center space-y-3 pb-6 border-b border-[#E5E3DA]/10">
+            <div className="w-14 h-14 mx-auto rounded-full bg-[#D7FF64]/10 border border-[#D7FF64]/40 flex items-center justify-center text-[#D7FF64]">
+              <Check size={28} />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">Upload Successful!</h2>
-              <p className="text-gray-400 text-sm mt-1">Your file has been uploaded and is ready to share</p>
+            <div className="text-[11px] font-mono text-[#D7FF64] uppercase tracking-widest">
+              [INGEST // COMPLETED]
             </div>
+            <h2 className="font-display font-extrabold text-2xl text-[#FFFFFF]">
+              Cryptographic Commitment Verified
+            </h2>
+            <p className="text-xs text-[#737373] font-mono">
+              SPECIMEN HAS BEEN ENCRYPTED AND REGISTERED IN YOUR REPOSITORY
+            </p>
           </div>
 
-          <div className="mt-8 space-y-4">
-            <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/30 flex items-center gap-4">
-              <FileIcon filename={uploadResult.originalFileName} size={20} className="w-12 h-12 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-500 mb-0.5">File name</p>
-                <p className="text-white font-medium truncate">{uploadResult.originalFileName}</p>
+          <div className="mt-6 space-y-4">
+            <div className="p-4 rounded bg-[#111827] border border-[#E5E3DA]/10 flex items-center gap-4">
+              <FileIcon filename={uploadResult.originalFileName} size={20} className="w-10 h-10 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-mono text-[#737373] uppercase">SPECIMEN IDENTIFIER</p>
+                <p className="text-xs font-bold text-[#FFFFFF] truncate mt-0.5">{uploadResult.originalFileName}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">
-                <p className="text-xs text-gray-500 mb-1">Size</p>
-                <p className="text-white font-medium">{fileService.formatFileSize(uploadResult.fileSize)}</p>
+
+            <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+              <div className="p-3 bg-[#111827] border border-[#E5E3DA]/10 rounded">
+                <span className="text-[10px] text-[#737373] block uppercase">PAYLOAD SIZE</span>
+                <span className="text-[#FFFFFF] font-bold mt-1 block">
+                  {fileService.formatFileSize(uploadResult.fileSize)}
+                </span>
               </div>
-              <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/30">
-                <p className="text-xs text-gray-500 mb-1">Visibility</p>
-                <p className={`font-medium ${uploadResult.visibility === 'PUBLIC' ? 'text-emerald-400' : 'text-amber-400'}`}>
+              <div className="p-3 bg-[#111827] border border-[#E5E3DA]/10 rounded">
+                <span className="text-[10px] text-[#737373] block uppercase">SECURITY POLICY</span>
+                <span className={`font-bold mt-1 block ${uploadResult.visibility === 'PUBLIC' ? 'text-[#D7FF64]' : 'text-amber-400'}`}>
                   {uploadResult.visibility}
-                </p>
+                </span>
               </div>
             </div>
 
             {uploadResult.shareLink && (
-              <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
-                <p className="text-xs text-gray-500 mb-2">Share Link</p>
+              <div className="p-4 rounded bg-[#151F2E] border border-[#D7FF64]/30">
+                <div className="flex items-center justify-between text-xs font-mono mb-2">
+                  <span className="text-[#D7FF64] font-bold flex items-center gap-1.5">
+                    <ShieldCheck size={14} />
+                    TOKENIZED PUBLIC ACCESS LINK
+                  </span>
+                  <span className="text-[10px] text-[#737373]">SHAREABLE</span>
+                </div>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
                     readOnly
                     value={fileService.getFrontendShareUrl(uploadResult.shareLink)}
-                    className="flex-1 px-3 py-2 bg-gray-800/60 border border-gray-700/30 rounded-lg text-sm text-gray-300 truncate"
+                    className="flex-1 px-3 py-2 bg-[#111827] border border-[#E5E3DA]/15 rounded text-xs font-mono text-[#F5F3EB] truncate"
                   />
                   <button
+                    type="button"
                     onClick={copyShareLink}
-                    className="p-2.5 rounded-lg bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
+                    className="px-3.5 py-2 rounded bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
                   >
-                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                    {copied ? <Check size={14} /> : <Copy size={14} />}
+                    <span>{copied ? 'COPIED' : 'COPY'}</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
 
-          <button
-            onClick={resetUpload}
-            className="w-full mt-6 py-3.5 px-6 bg-gray-800/50 hover:bg-gray-800/70 border border-gray-700/50 text-gray-200 font-medium rounded-xl transition-all duration-200"
-          >
-            Upload Another File
-          </button>
+          <div className="mt-8 flex gap-3">
+            <button
+              type="button"
+              onClick={resetUpload}
+              className="flex-1 py-3 px-4 bg-[#151F2E] hover:bg-[#1E2B3E] border border-[#E5E3DA]/20 text-[#F5F3EB] font-mono text-xs uppercase tracking-wider rounded transition-colors cursor-pointer"
+            >
+              Ingest Another File
+            </button>
+          </div>
         </div>
       )}
     </div>

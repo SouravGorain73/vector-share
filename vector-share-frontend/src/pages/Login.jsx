@@ -36,113 +36,115 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-orb"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] animate-orb-2"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[150px]"></div>
-      </div>
-
+    <div className="min-h-screen bg-[#111827] text-[#F5F3EB] flex items-center justify-center px-4 py-12 relative overflow-hidden bg-grid-technical font-sans">
       <div className="w-full max-w-md relative z-10 animate-fade-in-up">
-        {/* Logo */}
+        
+        {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/25 mb-4">
-            <Share2 size={28} className="text-white" />
+          <Link to="/" className="inline-flex items-center justify-center w-12 h-12 rounded bg-[#151F2E] border border-[#D7FF64]/40 text-[#D7FF64] mb-4 hover:border-[#D7FF64] transition-colors">
+            <Share2 size={22} />
+          </Link>
+          <div className="text-xs font-mono uppercase tracking-widest text-[#737373] mb-1">
+            [ACCESS // VERIFICATION]
           </div>
-          <h1 className="text-3xl font-bold text-white">Welcome back</h1>
-          <p className="mt-2 text-gray-400">Sign in to your VectorShare account</p>
+          <h1 className="font-display font-extrabold text-3xl text-[#FFFFFF] tracking-tight">
+            AUTHENTICATE VAULT
+          </h1>
+          <p className="mt-1.5 text-xs text-[#737373]">Enter credentials for cryptographic token release</p>
         </div>
 
-        {/* Form card */}
-        <div className="glass-card p-8">
+        {/* Editorial Dossier Card */}
+        <div className="bg-[#0E1522] border border-[#E5E3DA]/15 rounded-lg p-8 shadow-2xl">
           {/* Google OAuth */}
-          <GoogleButton label="Sign in with Google" onClick={handleGoogleLogin} />
+          <GoogleButton label="Authenticate with Google" onClick={handleGoogleLogin} />
 
-          <div className="auth-divider my-6">or continue with email</div>
+          <div className="auth-divider my-6">or continue with email credentials</div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Email address</label>
+              <label className="block text-xs font-mono uppercase tracking-wider text-[#737373] mb-2">
+                Email Address
+              </label>
               <div className="relative">
-                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]" />
                 <input
                   id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="name@company.com"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 bg-[#151F2E] border border-[#E5E3DA]/15 rounded text-sm text-[#FFFFFF] placeholder-[#737373] focus:border-[#D7FF64] focus:ring-1 focus:ring-[#D7FF64] transition-colors"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#737373]">
+                  Password
+                </label>
+                <Link to="/forgot-password" className="text-xs font-mono text-[#D7FF64] hover:underline">
+                  Recovery?
+                </Link>
+              </div>
               <div className="relative">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#737373]" />
                 <input
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="Enter secret token"
                   required
                   minLength={6}
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-800/50 border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                  className="w-full pl-10 pr-11 py-3 bg-[#151F2E] border border-[#E5E3DA]/15 rounded text-sm text-[#FFFFFF] placeholder-[#737373] focus:border-[#D7FF64] focus:ring-1 focus:ring-[#D7FF64] transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#737373] hover:text-[#FFFFFF] transition-colors"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            {/* Forgot password link */}
-            <div className="flex justify-end">
-              <Link to="/forgot-password" className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
-                Forgot password?
-              </Link>
-            </div>
             {/* Submit */}
             <button
               id="login-submit"
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider rounded transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-6"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-[#111827]/30 border-t-[#111827] rounded-full animate-spin"></div>
               ) : (
                 <>
-                  Sign In
-                  <ArrowRight size={18} />
+                  <span>Unlock Vault</span>
+                  <ArrowRight size={15} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Register link */}
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
-                Create account
+          {/* Registration link */}
+          <div className="mt-6 pt-5 border-t border-[#E5E3DA]/10 text-center">
+            <p className="text-xs text-[#737373]">
+              Unregistered entity?{' '}
+              <Link to="/register" className="text-[#D7FF64] font-semibold hover:underline">
+                Establish Vault Account
               </Link>
             </p>
           </div>
         </div>
 
-        {/* Back to landing */}
+        {/* Back Link */}
         <div className="mt-6 text-center">
-          <Link to="/" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">
-            ← Back to home
+          <Link to="/" className="text-xs font-mono text-[#737373] hover:text-[#FFFFFF] transition-colors">
+            ← RETURN TO SPECIFICATION
           </Link>
         </div>
       </div>

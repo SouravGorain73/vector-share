@@ -23,7 +23,7 @@ function Landing() {
   const goToLogin = () => navigate('/login');
 
   return (
-    <div className="landing-page bg-gray-950">
+    <div className="landing-page bg-[#111827] text-[#F5F3EB] min-h-screen">
       {/* Hero Section */}
       <HeroSection openSignUp={goToRegister} openSignIn={goToLogin} />
 
@@ -36,7 +36,7 @@ function Landing() {
       {/* Testimonials Section */}
       <TestimonialSection testimonials={testimonials} />
 
-      {/* CTA(Call to Action) Section */}
+      {/* CTA Section */}
       <CTASection openSignUp={goToRegister} />
 
       {/* Footer Section */}

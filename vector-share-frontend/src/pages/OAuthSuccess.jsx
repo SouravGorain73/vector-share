@@ -15,31 +15,37 @@ function OAuthSuccess() {
     if (token) {
       try {
         handleOAuthCallback(token);
-        setTimeout(() => navigate('/dashboard', { replace: true }), 500);
+        const timer = setTimeout(() => navigate('/dashboard', { replace: true }), 500);
+        return () => clearTimeout(timer);
       } catch {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setError('Failed to process authentication. Please try again.');
+        setError('Failed to process authentication token. Please re-authenticate.');
       }
     } else {
-      setError('No authentication token received.');
+      setError('No authentication token received from identity provider.');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   if (error) {
-  console.log(error)
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center animate-fade-in-up">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-500/15 mb-6">
-            <AlertCircle size={32} className="text-red-400" />
+      <div className="min-h-screen bg-[#111827] text-[#F5F3EB] flex items-center justify-center px-4 font-sans bg-grid-technical">
+        <div className="w-full max-w-md text-center animate-fade-in-up bg-[#0E1522] border border-red-500/20 p-8 rounded-lg shadow-2xl">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded bg-red-500/10 border border-red-500/30 text-red-400 mb-5">
+            <AlertCircle size={28} />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Authentication Failed</h1>
-          <p className="text-gray-400 mb-8">{error}</p>
+          <div className="text-[11px] font-mono uppercase tracking-widest text-red-400 mb-1">
+            [OAUTH // FAULT]
+          </div>
+          <h1 className="font-display font-extrabold text-2xl text-[#FFFFFF] mb-2">
+            Authentication Incomplete
+          </h1>
+          <p className="text-xs text-[#737373] mb-6 font-mono leading-relaxed">{error}</p>
           <button
             onClick={() => navigate('/login')}
-            className="px-6 py-3 bg-linear-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/25"
+            className="w-full py-3 px-6 bg-[#D7FF64] hover:bg-[#c9f550] text-[#111827] font-mono text-xs font-bold uppercase tracking-wider rounded transition-all cursor-pointer"
           >
-            Back to Login
+            Return to Authentication
           </button>
         </div>
       </div>
@@ -47,19 +53,24 @@ function OAuthSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
-      </div>
-
-      <div className="text-center relative z-10 animate-fade-in-up">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-xl shadow-purple-500/25 mb-6 animate-pulse-glow">
-          <Share2 size={32} className="text-white" />
+    <div className="min-h-screen bg-[#111827] text-[#F5F3EB] flex items-center justify-center px-4 font-sans bg-grid-technical">
+      <div className="text-center relative z-10 animate-fade-in-up bg-[#0E1522] border border-[#E5E3DA]/15 p-10 rounded-lg shadow-2xl max-w-md w-full">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded bg-[#151F2E] border border-[#D7FF64]/40 text-[#D7FF64] mb-6">
+          <Share2 size={26} />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-3">Signing you in...</h1>
-        <p className="text-gray-400 mb-8">Completing Google authentication</p>
-        <Loader2 size={32} className="mx-auto text-purple-400 animate-spin" />
+        <div className="text-[11px] font-mono uppercase tracking-widest text-[#D7FF64] mb-1">
+          [OAUTH // HANDSHAKE]
+        </div>
+        <h1 className="font-display font-extrabold text-2xl text-[#FFFFFF] mb-2">
+          Verifying Identity
+        </h1>
+        <p className="text-xs text-[#737373] mb-8 font-mono">
+          Synchronizing OAuth2 bearer token with vault state...
+        </p>
+        <div className="flex items-center justify-center gap-2 text-xs font-mono text-[#D7FF64]">
+          <Loader2 size={20} className="animate-spin text-[#D7FF64]" />
+          <span>ESTABLISHING SESSION</span>
+        </div>
       </div>
     </div>
   );

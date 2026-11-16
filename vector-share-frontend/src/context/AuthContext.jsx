@@ -1,25 +1,17 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import authService from '../services/authService';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+  const [token, setToken] = useState(() => authService.getToken());
+  const [user, setUser] = useState(() => {
     const savedToken = authService.getToken();
     const savedUser = authService.getUser();
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(savedUser);
-    }
-    setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return savedToken && savedUser ? savedUser : null;
+  });
+  const [loading] = useState(false);
 
   const extractEmailFromToken = (jwtToken) => {
     const payload = authService.decodeToken(jwtToken);

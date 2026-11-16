@@ -79,44 +79,32 @@ export const features = [
   {
     title: "Easy File Upload",
     description: "Quickly upload your files with our intuitive drag-and-drop interface. Supports all file types up to 50MB.",
-    icon: "ArrowUpCircle",
-    gradient: "from-blue-500 to-cyan-400",
-    bgGlow: "bg-blue-500/10"
+    icon: "ArrowUpCircle"
   },
   {
     title: "Secure Storage",
     description: "Your files are encrypted and stored securely in our cloud infrastructure with enterprise-grade protocols.",
-    icon: "Shield",
-    gradient: "from-emerald-500 to-teal-400",
-    bgGlow: "bg-emerald-500/10"
+    icon: "Shield"
   },
   {
     title: "Simple Sharing",
     description: "Share files with anyone using secure links that you control. Toggle between public and private anytime.",
-    icon: "Share2",
-    gradient: "from-purple-500 to-violet-400",
-    bgGlow: "bg-purple-500/10"
+    icon: "Share2"
   },
   {
     title: "Google OAuth",
     description: "Sign in seamlessly with your Google account. No passwords to remember, instant access.",
-    icon: "Globe",
-    gradient: "from-amber-500 to-orange-400",
-    bgGlow: "bg-amber-500/10"
+    icon: "Globe"
   },
   {
     title: "File Management",
     description: "Organize, preview, and manage your files from any device with our responsive dashboard.",
-    icon: "FileText",
-    gradient: "from-indigo-500 to-blue-400",
-    bgGlow: "bg-indigo-500/10"
+    icon: "FileText"
   },
   {
     title: "Link Controls",
     description: "Regenerate share links, toggle visibility, and maintain full control over your shared content.",
-    icon: "Link",
-    gradient: "from-pink-500 to-rose-400",
-    bgGlow: "bg-pink-500/10"
+    icon: "Link"
   }
 ];
 
